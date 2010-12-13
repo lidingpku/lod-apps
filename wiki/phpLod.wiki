@@ -17,4 +17,4 @@ This page describes a set of tools that provide online services for linking open
 Convert online CSV data into RDF, N-Triples or N-Quads.
 
  * This service is in testing status, please report errors/requests at http://code.google.com/p/lod-apps/issues
- * An instance of this service is available at http://onto.rpi.edu/php-lod/cls-csv2rdf.php. 
+ * An instance of this service is available at http://onto.rpi.edu/php-lod/phpCsv2Rdf.php. 
