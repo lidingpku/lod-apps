@@ -70,7 +70,7 @@ define("ME_NAME", "phpCsv2Rdf");
 define("ME_VERSION", "2010-12-04");
 define("ME_AUTHOR", "Li Ding");
 define("ME_CREATED", "2010-05-16");
-define("ME_HOMEPAGE", "http://code.google.com/p/lod-apps/wiki/phpCsv2Rdf");
+define("ME_HOMEPAGE", "http://code.google.com/p/lod-apps/wiki/phpLod#phpCsv2Rdf");
 
 // configuration - * customizable section
 
