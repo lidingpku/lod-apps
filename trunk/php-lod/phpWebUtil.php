@@ -80,7 +80,6 @@ define("ME_FILENAME", ME_NAME .".php");
  Section 4  Source code - Main Function
 *********************************************************************************/
 
-die();
 
 class WebUtil{
   public static function test(){
