@@ -89,7 +89,6 @@ foreach($code_dependency as $code){
  Section 4  Source code - Main Function
 *********************************************************************************/
 
-die();
 
 class RdfNode{
     const RDF_AUTO_TYPE = 0;
