@@ -1,4 +1,4 @@
-# homepage of php-lod package, offering phpCsv2Rdf service 
+#summary The homepage of php-lod software package, offering phpCsv2Rdf service
 
 = Introduction =
 This page describes a set of tools that provide online services for linking open data.
