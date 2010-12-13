@@ -1,0 +1,17 @@
+#homepage of php-lod package, offering phpCsv2Rdf service 
+
+= Introduction =
+This page describes a set of tools that provide online services for linking open data.
+
+ * the source of this package can be found at http://code.google.com/p/lod-apps/source/browse/#svn/trunk/php-lod
+
+= Software Package =
+== dependencies ==
+ * phpRdfNode => phpWebUtil
+ * phpRdfStream => phpRdfNode, phpWebUtil
+ * phpCsv2Rdf => phpRdfStream, phpRdfNode, phpWebUtil
+
+== phpCsv2Rdf ==
+Convert online CSV data into RDF, N-Triples or N-Quads.
+
+ * An instance of this service is available at http://onto.rpi.edu/php-lod/cls-csv2rdf.php. 
