@@ -136,9 +136,13 @@ class RdfStream
 	}
 
 
-	public function create_subject($url_ns_res){
-		$uri = sprintf("%sthing_%06d", $url_ns_res, $this->subject_id);
-		$this->subject_id++;	
+	public function create_subject($url_ns_res, $subject_localname=null){
+		if (!isset($subject_localname)){
+			$subject_localname = sprintf("thing_%06d",$this->subject_id);
+			$this->subject_id++;
+		}
+			
+		$uri = sprintf("%s%s", $url_ns_res, $subject_localname);
 		
 		return $uri;
 	}
