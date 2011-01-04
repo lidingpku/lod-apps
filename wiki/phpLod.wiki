@@ -12,6 +12,7 @@ This page describes a set of tools that provide online services for linking open
 || phpRdfNode || api  || alpha  || phpWebUtil ||
 || phpRdfStream || api  || alpha || phpRdfNode, phpWebUtil ||
 || [#phpCsv2Rdf] || service|| alpha  || phpRdfStream, phpRdfNode, phpWebUtil ||
+|| [#phpJson2Rdf] || service|| alpha  || phpRdfStream, phpRdfNode, phpWebUtil ||
 
 == phpCsv2Rdf ==
 Convert online CSV data into RDF, N-Triples or N-Quads.
