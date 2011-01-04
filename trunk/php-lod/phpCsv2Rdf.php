@@ -70,7 +70,7 @@ define("ME_NAME", "phpCsv2Rdf");
 define("ME_VERSION", "2010-12-04");
 define("ME_AUTHOR", "Li Ding");
 define("ME_CREATED", "2010-05-16");
-define("ME_HOMEPAGE", "http://code.google.com/p/lod-apps/wiki/phpLod#phpCsv2Rdf");
+define("ME_HOMEPAGE", "http://code.google.com/p/lod-apps/wiki/phpLod#".ME_NAME);
 
 // configuration - * customizable section
 
@@ -100,7 +100,7 @@ foreach($code_dependency as $code){
 *********************************************************************************/
 
 $params_input= array();
-$params_input[Csv2Rdf::INPUT_URL_CSV] = WebUtil::get_param(Csv2Rdf::INPUT_URL_CSV);
+$params_input[Csv2Rdf::INPUT_URL] = WebUtil::get_param(Csv2Rdf::INPUT_URL);
 $params_input[Csv2Rdf::INPUT_URI_SAMPLE] = WebUtil::get_param(Csv2Rdf::INPUT_URI_SAMPLE);
 $params_input[Csv2Rdf::INPUT_NS_PROPERTY] = WebUtil::get_param(Csv2Rdf::INPUT_NS_PROPERTY);
 $params_input[Csv2Rdf::INPUT_COLUMN_FOR_URI] = WebUtil::get_param(Csv2Rdf::INPUT_COLUMN_FOR_URI);
@@ -115,7 +115,7 @@ $params_input[Csv2Rdf::INPUT_SMART_PARSE] = WebUtil::get_param(Csv2Rdf::INPUT_SM
 
 
 
-if (empty($params_input[Csv2Rdf::INPUT_URL_CSV])){
+if (empty($params_input[Csv2Rdf::INPUT_URL])){
 	Csv2Rdf::show_html($params_input);
 }else{
 
@@ -132,7 +132,7 @@ if (empty($params_input[Csv2Rdf::INPUT_URL_CSV])){
 class Csv2Rdf
 {
 
-	const INPUT_URL_CSV = "url_csv";
+	const INPUT_URL = "url";
 	const INPUT_URI_SAMPLE = "uri_sample";
 	const INPUT_NS_PROPERTY = "ns_property";
 	const INPUT_COLUMN_FOR_URI = "column_for_uri";
@@ -146,14 +146,14 @@ class Csv2Rdf
 
 
 
-	const INPUT_NS_RESOURCE = "INPUT_NS_RESOURCE";
-	const INPUT_URL_XMLBASE = "INPUT_URL_XMLBASE";
+	const INPUT_NS_RESOURCE = "ns_resource";
+	const INPUT_URL_XMLBASE = "url_xmlbase";
 
 
 
 	public static function test(){		
 		// load CSV with header
-		$params[Csv2Rdf::INPUT_URL_CSV] = "http://tw.rpi.edu/ws/example/ex1.csv";
+		$params[Csv2Rdf::INPUT_URL] = "http://tw.rpi.edu/ws/example/ex1.csv";
 		$params[Csv2Rdf::INPUT_NS_RESOURCE] = "http://example.org/phpCsv2Rdf/";
 		$params[Csv2Rdf::INPUT_NS_PROPERTY] = "http://example.org/phpCsv2Rdf/vocab/";
 		
@@ -196,7 +196,7 @@ class Csv2Rdf
 		$rdf->begin($map_ns_prefix,  $params_input[Csv2Rdf::INPUT_OUTPUT], $params_input[Csv2Rdf::INPUT_URL_XMLBASE]);
 		
 		//load csv
-		$handle = fopen($params_input[Csv2Rdf::INPUT_URL_CSV], "r");
+		$handle = fopen($params_input[Csv2Rdf::INPUT_URL], "r");
 		$row_index =0;
 
 		for ($i=0; $i <$params_input[Csv2Rdf::INPUT_ROW_BEGIN]; $i ++){
@@ -253,7 +253,13 @@ class Csv2Rdf
 		$rdf->add_triple($subject, $predicate, $object) ;
 
 		$predicate = new RdfNode( RdfStream::NS_DCTERMS."source" ) ;
-		$object = new RdfNode( $params_input[Csv2Rdf::INPUT_URL_CSV] ) ;
+		$object = new RdfNode( $params_input[Csv2Rdf::INPUT_URL] ) ;
+		$rdf->add_triple($subject, $predicate, $object) ;
+
+		// get last modified date time
+		$predicate = new RdfNode( RdfStream::NS_DCTERMS."modified" ) ;
+		$remote = get_headers($url,1);
+		$object = new RdfNode( $remote["Last-Modified"] , RdfNode::RDF_STRING ) ; 
 		$rdf->add_triple($subject, $predicate, $object) ;
 
 		$predicate = new RdfNode( RdfStream::NS_RDFS."comment" ) ;
@@ -384,7 +390,7 @@ class Csv2Rdf
 
 <fieldset>
 <legend>CSV options</legend>
-CSV URL: <input name="<?php echo Csv2Rdf::INPUT_URL_CSV; ?>" size="102" type="text">   required, e.g. http://www.census.gov/epcd/naics02/naics02index.csv <br/>
+URL of CSV: <input name="<?php echo Csv2Rdf::INPUT_URL; ?>" size="102" type="text">   required, e.g. http://www.census.gov/epcd/naics02/naics02index.csv <br/>
 
 Optionally, choose the total number of rows to be converted: 
 	   <SELECT name="<?php echo Csv2Rdf::INPUT_ROW_TOTAL; ?>">
@@ -439,7 +445,7 @@ Column for URI: <input name="<?php echo Csv2Rdf::INPUT_COLUMN_FOR_URI; ?>" size=
 <div style="margin:10px">
 <h2>Online Resources</h2>
 <ul>
-<li>A simple example here: <a href="<?php echo ME_FILENAME; ?>?url_csv=http%3A%2F%2Fwww.census.gov%2Fepcd%2Fnaics02%2Fnaics02index.csv+&row_total=10&output=rdfxml&row_begin=&uri_sample=&ns_property=">convert first 10 rows</a> of a <a href="http://www.census.gov/epcd/naics02/naics02index.csv">Census' CSV file</a></li>
+<li>A simple example here: <a href="<?php echo ME_FILENAME; ?>?url=http%3A%2F%2Fwww.census.gov%2Fepcd%2Fnaics02%2Fnaics02index.csv+&row_total=10&output=rdfxml&row_begin=&uri_sample=&ns_property=">convert first 10 rows</a> of a <a href="http://www.census.gov/epcd/naics02/naics02index.csv">Census' CSV file</a></li>
 <li>More information about this tool can be found at its <a href="<?php echo ME_HOMEPAGE; ?>">homepage</a> </li>
 <li>Discuss this tool on twitter using <font color="green"><u>#<?php echo ME_NAME; ?></u></font> , and check out <a href="http://twitter.com/#search?q=%23<?php echo ME_NAME; ?>">related tweets</a> </li>
 <li>Report issues/bugs/ehancement/comments at <a href="http://code.google.com/p/lod-apps/issues">here</a> </li>

@@ -1,0 +1,13 @@
+{
+"smart_parse":"on",
+"ns_property":"http://tw.rpi.edu/2011/face.rdf#",
+"propmap":{
+  "picture":{"v":"http://opengraphprotocol.org/schema/image"},
+  "name":{"v":"http://opengraphprotocol.org/schema/title"},
+  "link":{"v":"http://opengraphprotocol.org/schema/url"},
+  "category":{"v":"http://opengraphprotocol.org/schema/type"}
+},
+"namespacemap":[
+  {"prefix":"og","ns":"http://opengraphprotocol.org/schema/"}
+]
+}
