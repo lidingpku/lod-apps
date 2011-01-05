@@ -1,0 +1,183 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <title>Linking Facebook Data</title>
+  <link href="http://data-gov.tw.rpi.edu/2009/data-gov.css"  rel="stylesheet" type="text/css" />
+    <script type="text/javascript">
+<!--
+	function onchange_select(){
+		var select = document.getElementById("face_select");
+		var id = select[select.selectedIndex].value ;
+
+		change_id(id);
+	}
+
+	function onchange_id(){
+	
+		var id = document.getElementById("faceid").value;
+		change_id(id);
+	}
+
+	function change_id(id){
+
+		var uri = "http://onto.rpi.edu/php-lod-test/demo/face/resource/"+id+"#me";
+		var vizid = "faceuri";
+		{
+			var viz= document.getElementById(vizid );
+			viz.innerHTML = "<a href=\""+uri+"\">"+uri+"</a>";
+		}
+		var uri = "http://dig.csail.mit.edu/2005/ajar/release/tabulator/0.8/tab.html?uri="+uri;
+		var vizid = "tabulatoruri";
+		{
+			var viz= document.getElementById(vizid );
+			viz.innerHTML = "<a href=\""+uri+"\">"+uri+"</a>";
+		}
+
+
+/*
+		var uri = "http://onto.rpi.edu/php-lod-test/demo/face_og/resource/"+id+"#me";
+		var vizid = "faceuri_og";
+		{
+			var viz= document.getElementById(vizid );
+			viz.innerHTML = "<a href=\""+uri+"\">"+uri+"</a>";
+		}
+		var uri = "http://dig.csail.mit.edu/2005/ajar/release/tabulator/0.8/tab.html?uri="+uri;
+		var vizid = "tabulatoruri_og";
+		{
+			var viz= document.getElementById(vizid );
+			viz.innerHTML = "<a href=\""+uri+"\">"+uri+"</a>";
+		}
+*/
+	}
+-->
+    </script>
+</head>
+<body>
+<h1>Linking Facebook Data</h1>
+This demo provides dereferenable HTTP URIs (with RDF/XML data) for Facebook data using data retrieved from the recently announced <a href="http://developers.facebook.com/docs/api" > Graph API</a> by Facebook. 
+It took me half a day to program PHP code converting the JSON data into RDF. Meanwhile, we are also testing the vocabulary from <a href="http://opengraphprotocol.org/"> Open Graph Protocol</a>.
+Our RDF data can be viewed using <a href="http://www.w3.org/2005/ajar/tab">Tabulator</a> [1] (preferred browser firefox).
+Please note that this is a proof-of-concept demo and the URIs may change in the future. 
+
+
+
+<fieldset>
+ <legend>FACE LOD Demo</legend>
+<form Method="GET" Action="/data/face" >
+ type facebook id here <input id="faceid" name="id" size="100" value=""  /  onKeyUp="onchange_id()" > and you will get URI below
+
+ <br/> examples facebook ids:
+
+ <select id="face_select" onchange= "onchange_select()">
+	<option value=""></option>
+	<option value="98423808305">A photo from Coca-Cola (linked data)</option>
+	<option value="barackobama">Barack Obama (people)</option>
+	<option value="19292868552">Facebook Platform (application)</option>
+ </select>
+</form>
+
+<div style="background:#EEE">
+links
+<fieldset>
+ <legend>FACE LOD (using open graph, foaf, dc terms)</legend>
+ <div>facebook LOD URI <span id="faceuri"></span></div>
+ <div>Browse URI using Tabulator online version  <span id="tabulatoruri"></span></div>
+</fieldset>
+
+<!--
+<fieldset>
+ <legend>FACE LOD (using open graph terms)</legend>
+ <div>facebook LOD-OG URI <span id="faceuri_og"></span></div>
+ <div>Browse URI using Tabulator online version<span id="tabulatoruri_og"></span></div>
+</fieldset>
+-->
+
+</div>
+</fieldset>
+
+
+<h3>Discussions</h3>
+<h4>Discussion 1. facebook data in LOD now! </h4>
+This demo opens up facebook data (public data only) to LOD community instantly. Even the data themselves are not well linked well as there are many privacy issues invovled. 
+We now have URIs for facebook entities, and they are HTTP dereferencable (e.g. <a href="http://onto.rpi.edu/php-lod-test/demo/face/resource/barackobama#me">http://onto.rpi.edu/php-lod-test/demo/face/resource/barackobama#me</a> and
+ <a href="http://onto.rpi.edu/php-lod-test/demo/face/resource/6815841748#me">http://onto.rpi.edu/php-lod-test/demo/face/resource/6815841748#me</a>). 
+I'm also looking forward to see RDFa embedded in facebook pages (I still cannot get anything so far).
+Right now the data are just URI dereferenceable, actually linking to DBpdia still needs more work. 
+
+<h4>Discussion 2. vocabulary usage</h4>
+<b>2.1 the json file from facebook is not using the exact open graph vocabulary </b>
+<div>
+Example Facebook Graph API JSON object (source: http://graph.facebook.com/cocacola). Interesting enough, that JSON use a different set of terms from the JSON object on the <a href="http://developers.facebook.com/docs/api">API homepage</a>
+<pre>
+{
+   "id": "40796308305",
+   "name": "Coca-Cola",
+   "picture": "http://profile.ak.fbcdn.net/object3/1853/100/s40796308305_2334.jpg",
+   "link": "http://www.facebook.com/coca-cola",
+   "category": "Consumer_products",
+   "username": "coca-cola",
+   "products": "Coca-Cola is the most popular and biggest-selling soft drink in history, as well as the best-known product in the world.\n\nCreated in Atlanta, Georgia, by Dr. John S. Pemberton, Coca-Cola was first offered as a fountain beverage by mixing Coca-Cola syrup with carbonated water. Coca-Cola was introduced in 1886, patented in 1887, registered as a trademark in 1893 and by 1895 it was being sold in every state and territory in the United States. In 1899, The Coca-Cola Company began franchised bottling operations in the United States.\n\nCoca-Cola might owe its origins to the United States, but its popularity has made it truly universal. Today, you can find Coca-Cola in virtually every part of the world.",
+   "fan_count": 5425800
+}
+</pre>
+Open Graph vocabulary
+<pre>
+    * og:title - The title of your object as it should appear within the graph, e.g., "The Rock".
+    * og:type - The type of your object, e.g., "movie". Depending on the type you specify, other properties may also be required.
+    * og:image - An image URL which should represent your object within the graph.
+    * og:url - The canonical URL of your object that will be used as its permanent ID in the graph, e.g., "http://www.imdb.com/title/tt0117500/".
+</pre>
+The mapping
+<pre>
+   name  => og:title
+   category => og:type
+   picture  => og:image
+   link  => og:url
+</pre>   
+</div>
+
+<b> 2.2 we can reuse foaf and dc to cover some terms used in facebook data </b>
+<div>
+The mapping is listed below
+<pre>
+  from => dcterms:source
+  id => dcterms:identifier
+  created_time => dcterms:created
+  updated_time => dcterms:modified
+</pre>   
+</div>
+
+Indeed, the og terms can be also easily mapped to foaf/dc terms
+<pre>
+  name => foaf:name
+  category => dcterms:type
+  picture => foaf:depiction
+  link => foaf:homepage
+</pre>   
+
+</body>
+</html>
+
+<h4>.htaccess URL rewrite</h4>
+This work 
+<pre>
+RewriteEngine On
+
+RewriteRule ^php-lod/demo/face/resource/(.*)$ /php-lod/phpJson2Rdf.php?url=http://graph.facebook.com/$1&url_config=http://lod-apps.googlecode.com/files/json2rdf_config_face.js&output=rdfxml&uri_sample=http://onto.rpi.edu/php-lod/demo/face/resource/$1%23me [R=301,L,QSA]
+</pre>
+<h3>Notes</h3>
+<div>
+2011-01-04. The Json2Rdf code used by this demo was updated in January 2011. The code is released as  <a href="http://code.google.com/p/lod-apps/wiki/phpLod#phpJson2Rdf">phpJson2Rdf</a> in the lod-apps project. 
+The orginal server sam.tw.rpi.edu was offline and the service has been moved to another server onto.rpi.edu.
+</div>
+
+<h3>Acknowledgement</h3>
+I'd like to thank valuable comments and helps from Jie Bao, Oshani Seneviratne, Tim Berners-Lee, Ian Jacobi,Ben Godfrey, Mischa Tuffield.
+
+<h3>References</h3>
+<ol>
+<li>Berners-Lee et. al.,  Tabulator: Exploring and Analyzing linked data on the Semantic Web, Procedings of the The 3rd International Semantic Web User Interaction Workshop (SWUI06)  workshop, Athens, Georgia, 6 Nov 2006. </li>
+</ol>
+
+
+<div style="text-align:center;color:green">This demo was created on April 27, 2010, and last Modified on January 4, 2011. Please send questions and comments to <a href="http://tw.rpi.edu/wiki/Li_Ding">Li Ding</a> at RPI.</div>
