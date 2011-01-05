@@ -298,17 +298,23 @@ class Json2Rdf
 	public function convert_json ($rdf, $params_input, $subject, $predicate, $obj){
 	    if (is_array($obj)){
 		$prev = null;
-		foreach ($obj as $obj_item){
-			$object = $this->convert_json($rdf, $params_input, $subject, $predicate, $obj_item);
 
-			if (null!=$prev && null!=$object && is_object($obj_item) ){
+		$object = new RdfNode( $rdf->create_subject($params_input[Json2Rdf::INPUT_NS_RESOURCE]) ) ;
+		$rdf->add_triple($subject, $predicate, $object);
+
+		foreach ($obj as $obj_item){
+			$predicate = new RdfNode( RdfStream::NS_RDFS."member" );
+			$o = $this->convert_json($rdf, $params_input, $object, $predicate, $obj_item);
+
+			if (null!=$prev && null!=$o && is_object($obj_item) ){
 				//assert sequence
 				$predicate = new RdfNode( RdfStream::NS_DGTWC."next" );
-				$rdf->add_triple($prev, $predicate, $object);
+				$rdf->add_triple($prev, $predicate, $o);
 			}
-			$prev = $object;
-			$object = null;
-		}			
+			$prev = $o;
+			$o = null;
+		}		
+		return $object;	
 
 	    }else{
 		 if (is_object($obj)){

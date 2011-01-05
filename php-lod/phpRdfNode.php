@@ -126,6 +126,8 @@ class RdfNode{
 				$this->type=RdfNode::RDF_FLOAT;
 			else
 				$this->type=RdfNode::RDF_STRING;
+/*
+	there are major bugs in date parsing, do not use it
 		}else if ( $date= WebUtil::parseXsdDateTime($this->value)){
 			if (strlen($date)>10)
 				$this->type=RdfNode::RDF_DATETIME;
@@ -133,7 +135,7 @@ class RdfNode{
 				$this->type=RdfNode::RDF_DATE;
 				
 			$this->value=$date;
-		}else{
+*/		}else{
 			$this->value=trim($this->value);
 			$this->type=RdfNode::RDF_STRING;
 		}		
