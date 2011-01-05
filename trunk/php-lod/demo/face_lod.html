@@ -159,11 +159,11 @@ Indeed, the og terms can be also easily mapped to foaf/dc terms
 </html>
 
 <h4>.htaccess URL rewrite</h4>
-This work 
+This work leverages mod_rewrite module of Apache httpd server. The following is the content of .htaccess file which is colocated with this html file.
 <pre>
 RewriteEngine On
 
-RewriteRule ^php-lod/demo/face/resource/(.*)$ /php-lod/phpJson2Rdf.php?url=http://graph.facebook.com/$1&url_config=http://lod-apps.googlecode.com/files/json2rdf_config_face.js&output=rdfxml&uri_sample=http://onto.rpi.edu/php-lod/demo/face/resource/$1%23me [R=301,L,QSA]
+RewriteRule ^face/resource/(.*)$ /php-lod/phpJson2Rdf.php?url=http://graph.facebook.com/$1&url_config=http://lod-apps.googlecode.com/files/json2rdf_config_face.js&output=rdfxml&uri_sample=http://onto.rpi.edu/php-lod/demo/face/resource/$1%23me [R=301,L,QSA]
 </pre>
 <h3>Notes</h3>
 <div>
