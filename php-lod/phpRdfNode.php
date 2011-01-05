@@ -113,6 +113,11 @@ class RdfNode{
 		}
 	}
 	
+	public function is_a_name(){
+		return  (RdfNode::RDF_STRING == $this->type) && MyWebUtil::endsWith($this->value,"name") ;
+			
+	}
+	
 	public function do_auto_type(){
 		if (WebUtil::is_uri($this->value)){
 			$this->type = RdfNode::RDF_URI;
