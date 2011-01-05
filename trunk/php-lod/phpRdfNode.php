@@ -143,7 +143,10 @@ class RdfNode{
 		switch ($this->type){
 		case RdfNode::RDF_URI:
 			if (null!= $map_ns_prefix){
-				return str_replace(array_keys($map_ns_prefix),array_values($map_ns_prefix), $this->get_value()) ;
+				$temp = $this->get_value();
+				$temp = str_replace('&', '&amp;', $temp);
+				$temp = str_replace(array_keys($map_ns_prefix),array_values($map_ns_prefix), $temp);				
+				return  $temp ;
 			}
 			break;
 		case RdfNode::RDF_STRING:
