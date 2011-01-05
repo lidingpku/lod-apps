@@ -146,8 +146,8 @@ class Json2Rdf
 
 
 	public static function test(){		
-		// load JSON with header
-		$params[Json2Rdf::INPUT_URL] = "http://graph.facebook.com/cocacola";
+		// load CSV with header
+		$params[Json2Rdf::INPUT_URL] = "http://onto.rpi.edu/php-lod-test/file-example2.js";
 		$params[Json2Rdf::INPUT_NS_RESOURCE] = "http://example.org/phpJson2Rdf/";
 		$params[Json2Rdf::INPUT_NS_PROPERTY] = "http://example.org/phpJson2Rdf/vocab/";
 		
@@ -256,7 +256,7 @@ class Json2Rdf
 
 
 		$predicate = new RdfNode( RdfStream::NS_RDFS."comment" ) ;
-		$object = new RdfNode( "This RDF dataset is converted from JSON using phpJson2Rdf (http://code.google.com/p/lod-apps/wiki/phpJson2Rdf).",  RdfNode::RDF_STRING ) ;
+		$object = new RdfNode( "This RDF dataset is converted from csv using phpJson2Rdf (http://code.google.com/p/lod-apps/wiki/phpJson2Rdf).",  RdfNode::RDF_STRING ) ;
 		$rdf->add_triple($subject, $predicate, $object) ;
 
 
@@ -306,7 +306,7 @@ class Json2Rdf
 				$predicate = new RdfNode( RdfStream::NS_DGTWC."next" );
 				$rdf->add_triple($prev, $predicate, $object);
 			}
-			$prev = obj_item;
+			$prev = $object;
 			$object = null;
 		}			
 
@@ -315,7 +315,7 @@ class Json2Rdf
 			// the object is a complex structure, and it needs a URI
 			
 			//create uri for object
-			if (null==$subject)
+			if (!isset($subject) && !isset($predicate) )
 				$object = new RdfNode( $rdf->create_subject($params_input[Json2Rdf::INPUT_NS_RESOURCE],"me") ) ;
 			else
 				$object = new RdfNode( $rdf->create_subject($params_input[Json2Rdf::INPUT_NS_RESOURCE]) ) ;
@@ -394,7 +394,7 @@ class Json2Rdf
 	<div style="margin-left:20px">
 		<font size="200%"><strong> <?php echo ME_TITLE; ?> </strong></font>	(version <?php echo ME_VERSION; ?>)
 		<br/>
-		A RESTful web service that convert a JSON data (a complex tree-ish object) into RDF.
+		A RESTful web service that convert tabular CSV (a table with header) into RDF.
 	</div>
 </td>
 </tr>
@@ -404,8 +404,8 @@ class Json2Rdf
 <form method="get" action="<?php echo ME_FILENAME; ?>" border="1">
 
 <fieldset>
-<legend>JSON options</legend>
-URL of JSON: <input name="<?php echo Json2Rdf::INPUT_URL; ?>" size="102" type="text">   required, e.g. http://graph.facebook.com/cocacola <br/>
+<legend>CSV options</legend>
+CSV URL: <input name="<?php echo Json2Rdf::INPUT_URL; ?>" size="102" type="text">   required, e.g. http://www.census.gov/epcd/naics02/naics02index.csv <br/>
 
 Optionally, conversion configuration URL: <input name="<?php echo Json2Rdf::INPUT_URL_CONFIG; ?>" size="102" type="text">  <br/>
 
@@ -444,7 +444,7 @@ Show me the namespace of a property for a column header: <input name="<?php echo
 <div style="margin:10px">
 <h2>Online Resources</h2>
 <ul>
-<li>A simple example here: <a href="<?php echo ME_FILENAME; ?>?url=http%3A%2F%2Fgraph.facebook.com%2Fcocacola&url_config=http%3A%2F%2Flod-apps.googlecode.com%2Ffiles%2Fjson2rdf_config_face.js&output=rdfxml">RDF/XML convertion </a> (using <a href="http://lod-apps.googlecode.com/files/json2rdf_config_face.js">this configuration file </a> of a <a href="http://graph.facebook.com/cocacola">Cocacola's Facebook Json data</a></li>
+<li>A simple example here: <a href="<?php echo ME_FILENAME; ?>?url=http%3A%2F%2Fwww.census.gov%2Fepcd%2Fnaics02%2Fnaics02index.csv+&row_total=10&output=rdfxml&row_begin=&uri_sample=&ns_property=">convert first 10 rows</a> of a <a href="http://www.census.gov/epcd/naics02/naics02index.csv">Census' CSV file</a></li>
 <li>More information about this tool can be found at its <a href="<?php echo ME_HOMEPAGE; ?>">homepage</a> </li>
 <li>Discuss this tool on twitter using <font color="green"><u>#<?php echo ME_NAME; ?></u></font> , and check out <a href="http://twitter.com/#search?q=%23<?php echo ME_NAME; ?>">related tweets</a> </li>
 <li>Report issues/bugs/ehancement/comments at <a href="http://code.google.com/p/lod-apps/issues">here</a> </li>
