@@ -269,6 +269,9 @@ class WebUtil{
 	    return (strcasecmp(substr($haystack, strlen($haystack) - strlen($needle)),$needle)===0);
 	}
 
+    static function in_arrayi($needle, $haystack) {
+        return in_array(strtolower($needle), array_map('strtolower', $haystack));
+    }	
 		
 }  
 ?>
