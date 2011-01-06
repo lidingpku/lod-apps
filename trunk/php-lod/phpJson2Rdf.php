@@ -140,6 +140,7 @@ class Json2Rdf
 
 
 
+	const INPUT_CASE_SENSITIVE = "case_sensitive";
 	const INPUT_NS_RESOURCE = "ns_resource";
 	const INPUT_URL_XMLBASE = "url_xmlbase";
 
@@ -163,6 +164,8 @@ class Json2Rdf
 			$this->input_config = json_decode($temp);						
 		}
 
+		$params_input[Json2Rdf::INPUT_CASE_SENSITIVE] =false;
+
 		if (isset($this->input_config)){
 			if(isset($this->input_config->namespacemap) ){
 				foreach ($this->input_config->namespacemap as $mapping){
@@ -185,7 +188,7 @@ class Json2Rdf
 		}
 
 
-		//preprocess params
+		//pre-process parameters
 		if (empty($params_input[Json2Rdf::INPUT_URI_SAMPLE]))
 			$params_input[Json2Rdf::INPUT_URI_SAMPLE] = sprintf("http://example.org/phpJson2Rdf/run%d#thing_1", time() );
 
@@ -227,18 +230,21 @@ class Json2Rdf
 		$this->convert_json($rdf, $params_input, null, null, $data);
 		
 		//add property metadata
-		foreach($this->propmap as $property => $subject){
-			if (isset($this->input_config) && isset($this->input_config->propmap) && property_exists( $this->input_config->propmap, $property))
-				continue;
-
-			$predicate = new RdfNode( RdfStream::NS_RDF."type" ) ;
-			$object = new RdfNode( RdfStream::NS_RDF."Property" ) ;
-			$rdf->add_triple($subject, $predicate, $object);			
+		foreach($this->propmap as $property => $predicates){
+			foreach ($predicates as $subject){
+				if ($this->get_predicate_values ($property, $params_input[Json2Rdf::INPUT_CASE_SENSITIVE]))
+					continue;
 			
-			$predicate = new RdfNode( RdfStream::NS_RDFS."label" ) ;
-			$object = new RdfNode( $property , RdfNode::RDF_STRING ) ;
-			$rdf->add_triple($subject, $predicate, $object);			
+				$predicate = new RdfNode( RdfStream::NS_RDF."type" ) ;
+				$object = new RdfNode( RdfStream::NS_RDF."Property" ) ;
+				$rdf->add_triple($subject, $predicate, $object);			
+			
+				$predicate = new RdfNode( RdfStream::NS_RDFS."label" ) ;
+				$object = new RdfNode( $property , RdfNode::RDF_STRING ) ;
+				$rdf->add_triple($subject, $predicate, $object);			
+			}			
 		}
+		
 
 		//add more metadata
 		$subject = new RdfNode( $params_input[Json2Rdf::INPUT_URL_XMLBASE] ) ;
@@ -276,24 +282,44 @@ class Json2Rdf
 	var $propmap = array();
 	var $input_config = null;
 	
-	public function get_predicate($predicate){
+	public function get_predicate($predicate, $casesensitive){
 		// if we have not seen the predicate
 		if (!array_key_exists($predicate, $this->propmap)){
-			if (isset($this->input_config) && isset($this->input_config->propmap) && property_exists( $this->input_config->propmap, $predicate)){
-				// if the predicate has already been predefined		
-				$this->propmap[$predicate]= new RdfNode( $this->input_config->propmap->{$predicate}->v );
-		
+			if ($properties = $this->get_predicate_values($predicate, $casesensitive)){
+				// if the predicate has already been predefined
+				$predicates = array();
+				foreach ($properties as $property){		
+					$predicates[] = new RdfNode( $property );
+				}
+				
+				$this->propmap[$predicate]= $predicates;		
 			}else{
 				// create a new predicate on the fly using local namespace
 				$subject = WebUtil::normalize_localname($predicate);
-				$this->propmap[$predicate]= new RdfNode( $params_input[Json2Rdf::INPUT_NS_PROPERTY] . $subject );
+				$predicates = array();
+				$predicates[] = new RdfNode( $params_input[Json2Rdf::INPUT_NS_PROPERTY] . $subject );
+				$this->propmap[$predicate]= $predicates;		
 			}
 		}
 		
 		return 	 $this->propmap[$predicate];	
 	}
 	
-	
+	private function get_predicate_values($predicate, $casesensitive){
+		if (!isset($this->input_config))
+			return false;
+		if (!isset($this->input_config->propmap))
+			return false;
+			
+		foreach ($this->input_config->propmap as $mapping){
+			if ($casesensitive){
+				if (in_array( $predicate, $mapping->p)) return $mapping->v; 
+			}else{
+				if (WebUtil::in_arrayi( $predicate, $mapping->p)) return $mapping->v; 
+			}
+		}		
+		return false;
+	}
 	
 	public function convert_json ($rdf, $params_input, $subject, $predicate, $obj){
 	    if (is_array($obj)){
@@ -327,7 +353,9 @@ class Json2Rdf
 				$object = new RdfNode( $rdf->create_subject($params_input[Json2Rdf::INPUT_NS_RESOURCE]) ) ;
 
 			foreach ($obj as $key =>$value){
-				$this->convert_json($rdf, $params_input, $object, $this->get_predicate($key), $value);
+				foreach ($this->get_predicate($key,$params_input[Json2Rdf::INPUT_CASE_SENSITIVE]) as $p){
+					$this->convert_json($rdf, $params_input, $object, $p, $value);
+				}
 			}			
 		}else{
 			// the object is a string or a number, it is not a URI
