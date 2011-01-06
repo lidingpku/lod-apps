@@ -26,3 +26,34 @@ Convert online JSON data into RDF, N-Triples or N-Quads.
  * This service is in testing status, please report errors/requests at http://code.google.com/p/lod-apps/issues
  * An instance of this service is available at http://onto.rpi.edu/php-lod/phpJson2Rdf.php. 
  * A demo of this service is available at http://onto.rpi.edu/php-lod/demo/face_lod.html
+
+Here is an example conversion configuration file (in JSON)
+<pre>
+{
+"ns_property":"http://lod-apps.googlecode.com/files/face.rdf#",
+"propmap":{
+  "picture":{"v":"http://opengraphprotocol.org/schema/image"},
+  "name":{"v":"http://opengraphprotocol.org/schema/title"},
+  "link":{"v":"http://opengraphprotocol.org/schema/url"},
+  "category":{"v":"http://opengraphprotocol.org/schema/type"}
+
+  "pictureX":{"v":"http://xmlns.com/foaf/0.1/depiction"},
+  "nameX":{"v":"http://xmlns.com/foaf/0.1/name"},
+  "linkX":{"v":"http://xmlns.com/foaf/0.1/homepage"}
+  "categoryX":{"v":"http://purl.org/dc/terms/type"},
+  
+  "first_name":{"v":"http://xmlns.com/foaf/0.1/firstName"},
+  "last_name":{"v":"http://xmlns.com/foaf/0.1/lastName"},
+  "from":{"v":"http://purl.org/dc/terms/source"},
+  "id":{"v":"http://purl.org/dc/terms/identifier"},
+  "created_time":{"v":"http://purl.org/dc/terms/created"},
+  "updated_time":{"v":"http://purl.org/dc/terms/modified"},
+
+},
+"namespacemap":[
+  {"prefix":"og","ns":"http://opengraphprotocol.org/schema/"}
+  {"prefix":"foaf","ns":"http://xmlns.com/foaf/0.1/"}
+  {"prefix":"dcterms","ns":"http://purl.org/dc/terms/"}
+]
+}
+</pre>
