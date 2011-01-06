@@ -146,7 +146,7 @@ class Json2Rdf
 
 
 	public static function test(){		
-		// load CSV with header
+		// load JSON with header
 		$params[Json2Rdf::INPUT_URL] = "http://onto.rpi.edu/php-lod-test/file-example2.js";
 		$params[Json2Rdf::INPUT_NS_RESOURCE] = "http://example.org/phpJson2Rdf/";
 		$params[Json2Rdf::INPUT_NS_PROPERTY] = "http://example.org/phpJson2Rdf/vocab/";
@@ -256,7 +256,7 @@ class Json2Rdf
 
 
 		$predicate = new RdfNode( RdfStream::NS_RDFS."comment" ) ;
-		$object = new RdfNode( "This RDF dataset is converted from csv using phpJson2Rdf (http://code.google.com/p/lod-apps/wiki/phpJson2Rdf).",  RdfNode::RDF_STRING ) ;
+		$object = new RdfNode( "This RDF dataset is converted from json using phpJson2Rdf (http://code.google.com/p/lod-apps/wiki/phpJson2Rdf).",  RdfNode::RDF_STRING ) ;
 		$rdf->add_triple($subject, $predicate, $object) ;
 
 
@@ -400,7 +400,7 @@ class Json2Rdf
 	<div style="margin-left:20px">
 		<font size="200%"><strong> <?php echo ME_TITLE; ?> </strong></font>	(version <?php echo ME_VERSION; ?>)
 		<br/>
-		A RESTful web service that convert tabular CSV (a table with header) into RDF.
+		A RESTful web service that convert JSON (a tree-ish complex object) into RDF.
 	</div>
 </td>
 </tr>
@@ -410,10 +410,10 @@ class Json2Rdf
 <form method="get" action="<?php echo ME_FILENAME; ?>" border="1">
 
 <fieldset>
-<legend>CSV options</legend>
-CSV URL: <input name="<?php echo Json2Rdf::INPUT_URL; ?>" size="102" type="text">   required, e.g. http://www.census.gov/epcd/naics02/naics02index.csv <br/>
+<legend>JSON options</legend>
+URL of JSON: <input name="<?php echo Json2Rdf::INPUT_URL; ?>" size="102" type="text">   required, e.g. http://graph.facebook.com/cocacola <br/>
 
-Optionally, conversion configuration URL: <input name="<?php echo Json2Rdf::INPUT_URL_CONFIG; ?>" size="102" type="text">  <br/>
+Optionally, URL of conversion configuration file (in JSON): <input name="<?php echo Json2Rdf::INPUT_URL_CONFIG; ?>" size="102" type="text">  <br/>
 
 Optionally, choose the output format: 
 	   <SELECT name="<?php echo Json2Rdf::INPUT_OUTPUT; ?>">
@@ -433,11 +433,11 @@ Optionally, choose the output format:
 
 <fieldset>
 <legend>RDF conversion options</legend>
-Show me a sample URI of a row: <input name="<?php echo Json2Rdf::INPUT_URI_SAMPLE; ?>" size="102" type="text" >  e.g http://example.org/phpJson2Rdf/test/thing_000001<br/>
+Type a sample URI of an instance (mapped from a JSON object): <input name="<?php echo Json2Rdf::INPUT_URI_SAMPLE; ?>" size="102" type="text" >  e.g http://example.org/phpJson2Rdf/test#thing_000001<br/>
 
-Shall we do smart parse? <input name="<?php echo Json2Rdf::INPUT_SMART_PARSE; ?>" type="checkbox"> check it will identify empty, integer, datatime cells in conversion; otherwise all cells will be kept as string. <br/>
+Run smart parse? <input name="<?php echo Json2Rdf::INPUT_SMART_PARSE; ?>" type="checkbox"> check this option will identify empty, typed literal during conversion; otherwise all values will be kept as plain literal. <br/>
 
-Show me the namespace of a property for a column header: <input name="<?php echo Json2Rdf::INPUT_NS_PROPERTY; ?>" size="102" type="text">  <br/>
+Type the namespace of a property (mapped from the name of the name/value pairs): <input name="<?php echo Json2Rdf::INPUT_NS_PROPERTY; ?>" size="102" type="text">  <br/>
 </fieldset>
 
 
@@ -450,7 +450,7 @@ Show me the namespace of a property for a column header: <input name="<?php echo
 <div style="margin:10px">
 <h2>Online Resources</h2>
 <ul>
-<li>A simple example here: <a href="<?php echo ME_FILENAME; ?>?url=http%3A%2F%2Fwww.census.gov%2Fepcd%2Fnaics02%2Fnaics02index.csv+&row_total=10&output=rdfxml&row_begin=&uri_sample=&ns_property=">convert first 10 rows</a> of a <a href="http://www.census.gov/epcd/naics02/naics02index.csv">Census' CSV file</a></li>
+<li>An example here: the <a href="<?php echo ME_FILENAME; ?>?url=http%3A%2F%2Fgraph.facebook.com%2Fcocacola">conversion result</a> of a <a href="http://graph.facebook.com/cocacola">JSON file</a></li>
 <li>More information about this tool can be found at its <a href="<?php echo ME_HOMEPAGE; ?>">homepage</a> </li>
 <li>Discuss this tool on twitter using <font color="green"><u>#<?php echo ME_NAME; ?></u></font> , and check out <a href="http://twitter.com/#search?q=%23<?php echo ME_NAME; ?>">related tweets</a> </li>
 <li>Report issues/bugs/ehancement/comments at <a href="http://code.google.com/p/lod-apps/issues">here</a> </li>

@@ -418,18 +418,18 @@ Optionally, choose the output format:
 
 <fieldset>
 <legend>Additional CSV options</legend>
-Which row is the first row (default row 1)? <input name="<?php echo Csv2Rdf::INPUT_ROW_BEGIN; ?>" size="30" type="text"> <br/>
+Which row in CSV file is the first table row (default 1)? <input name="<?php echo Csv2Rdf::INPUT_ROW_BEGIN; ?>" size="30" type="text"> <br/>
 
 Is the header row missing? <input name="<?php echo Csv2Rdf::INPUT_NO_HEADER; ?>" size="102" type="checkbox"> <br/>
 </fieldset>
 
 <fieldset>
 <legend>RDF conversion options</legend>
-Show me a sample URI of a row: <input name="<?php echo Csv2Rdf::INPUT_URI_SAMPLE; ?>" size="102" type="text" >  e.g http://example.org/phpCsv2Rdf/test/thing_000001<br/>
+Show me a sample URI of an instance (mapped from a CSV row): <input name="<?php echo Csv2Rdf::INPUT_URI_SAMPLE; ?>" size="102" type="text" >  e.g http://example.org/phpCsv2Rdf/test/thing_000001<br/>
 
-Shall we do smart parse? <input name="<?php echo Csv2Rdf::INPUT_SMART_PARSE; ?>" type="checkbox"> check it will identify empty, integer, datatime cells in conversion; otherwise all cells will be kept as string. <br/>
+Run smart parse? <input name="<?php echo Csv2Rdf::INPUT_SMART_PARSE; ?>" type="checkbox">  check this option will identify empty, typed literal during conversion; otherwise all values will be kept as plain literal. <br/>
 
-Show me the namespace of a property for a column header: <input name="<?php echo Csv2Rdf::INPUT_NS_PROPERTY; ?>" size="102" type="text">  <br/>
+Type the namespace of a property (mapped from a column header): <input name="<?php echo Csv2Rdf::INPUT_NS_PROPERTY; ?>" size="102" type="text">  <br/>
 </fieldset>
 
 
