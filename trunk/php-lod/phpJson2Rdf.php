@@ -439,9 +439,9 @@ class Json2Rdf
 
 <fieldset>
 <legend>JSON options</legend>
-URL of JSON: <input name="<?php echo Json2Rdf::INPUT_URL; ?>" size="102" type="text">   required, e.g. http://lod-apps.googlecode.com/svn-history/r33/trunk/php-lod/demo/example2.js <br/>
+URL of JSON: <input name="<?php echo Json2Rdf::INPUT_URL; ?>" size="102" type="text">   required, e.g. http://lod-apps.googlecode.com/svn/trunk/php-lod/demo/example2.js <br/>
 
-Optionally, URL of conversion configuration file (in JSON): <input name="<?php echo Json2Rdf::INPUT_URL_CONFIG; ?>" size="102" type="text">  <br/>
+Optionally, URL of conversion configuration file (in JSON): <input name="<?php echo Json2Rdf::INPUT_URL_CONFIG; ?>" size="102" type="text"> e.g. http://lod-apps.googlecode.com/svn/trunk/php-lod/demo/json2rdf_config_face.js <br/>
 
 Optionally, choose the output format: 
 	   <SELECT name="<?php echo Json2Rdf::INPUT_OUTPUT; ?>">
@@ -478,7 +478,7 @@ Type the namespace of a property (mapped from the name of the name/value pairs):
 <div style="margin:10px">
 <h2>Online Resources</h2>
 <ul>
-<li>An example here: the <a href="<?php echo ME_FILENAME; ?>?url=http://lod-apps.googlecode.com/svn-history/r33/trunk/php-lod/demo/example2.js">conversion result</a> of a <a href="http://lod-apps.googlecode.com/svn-history/r33/trunk/php-lod/demo/example2.js">JSON file</a></li>
+<li>An example here: the <a href="<?php echo ME_FILENAME; ?>?url=http://lod-apps.googlecode.com/svn/trunk/php-lod/demo/example2.js">conversion result</a> of a <a href="http://lod-apps.googlecode.com/svn/trunk/php-lod/demo/example2.js">JSON file</a></li>
 <li>More information about this tool can be found at its <a href="<?php echo ME_HOMEPAGE; ?>">homepage</a> </li>
 <li>Discuss this tool on twitter using <font color="green"><u>#<?php echo ME_NAME; ?></u></font> , and check out <a href="http://twitter.com/#search?q=%23<?php echo ME_NAME; ?>">related tweets</a> </li>
 <li>Report issues/bugs/ehancement/comments at <a href="http://code.google.com/p/lod-apps/issues">here</a> </li>
