@@ -20,7 +20,7 @@ Convert online CSV data into RDF, N-Triples or N-Quads.
  * This service is in testing status, please report errors/requests at http://code.google.com/p/lod-apps/issues
  * An instance of this service is available at http://onto.rpi.edu/php-lod/phpCsv2Rdf.php. 
 
-== phpJsonRdf ==
+== phpJson2Rdf ==
 Convert online JSON data into RDF, N-Triples or N-Quads.
 
  * This service is in testing status, please report errors/requests at http://code.google.com/p/lod-apps/issues
