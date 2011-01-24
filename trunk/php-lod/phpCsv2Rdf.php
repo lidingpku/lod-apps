@@ -448,7 +448,7 @@ Column for URI: <input name="<?php echo Csv2Rdf::INPUT_COLUMN_FOR_URI; ?>" size=
 <li>A simple example here: <a href="<?php echo ME_FILENAME; ?>?url=http%3A%2F%2Fwww.census.gov%2Fepcd%2Fnaics02%2Fnaics02index.csv+&row_total=10&output=rdfxml&row_begin=&uri_sample=&ns_property=">convert first 10 rows</a> of a <a href="http://www.census.gov/epcd/naics02/naics02index.csv">Census' CSV file</a></li>
 <li>More information about this tool can be found at its <a href="<?php echo ME_HOMEPAGE; ?>">homepage</a> </li>
 <li>Discuss this tool on twitter using <font color="green"><u>#<?php echo ME_NAME; ?></u></font> , and check out <a href="http://twitter.com/#search?q=%23<?php echo ME_NAME; ?>">related tweets</a> </li>
-<li>Report issues/bugs/ehancement/comments at <a href="http://code.google.com/p/lod-apps/issues">here</a> </li>
+<li>Report issues/bugs/enhancement/comments at <a href="http://code.google.com/p/lod-apps/issues">here</a> </li>
 </ul>
 </div>
 

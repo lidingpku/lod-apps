@@ -481,7 +481,7 @@ Type the namespace of a property (mapped from the name of the name/value pairs):
 <li>An example here: the <a href="<?php echo ME_FILENAME; ?>?url=http://lod-apps.googlecode.com/svn/trunk/php-lod/demo/example2.js">conversion result</a> of a <a href="http://lod-apps.googlecode.com/svn/trunk/php-lod/demo/example2.js">JSON file</a></li>
 <li>More information about this tool can be found at its <a href="<?php echo ME_HOMEPAGE; ?>">homepage</a> </li>
 <li>Discuss this tool on twitter using <font color="green"><u>#<?php echo ME_NAME; ?></u></font> , and check out <a href="http://twitter.com/#search?q=%23<?php echo ME_NAME; ?>">related tweets</a> </li>
-<li>Report issues/bugs/ehancement/comments at <a href="http://code.google.com/p/lod-apps/issues">here</a> </li>
+<li>Report issues/bugs/enhancement/comments at <a href="http://code.google.com/p/lod-apps/issues">here</a> </li>
 </ul>
 </div>
 
