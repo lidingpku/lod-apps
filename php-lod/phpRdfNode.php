@@ -49,6 +49,9 @@ software stack
 
 
 2. Change Log
+2011-01-25, version 0.1.1 (Li)
+* move define code into const
+
 2010-12-12, version 0.1 (Li) 
 * the second version
 
@@ -59,20 +62,7 @@ software stack
  Section 3  Source code - Configuration
 *********************************************************************************/
 
-////////////////////////////////
-// configuration - version
-////////////////////////////////
 
-define("ME_NAME", "phpRdfNode");
-define("ME_VERSION", "2010-12-12");
-define("ME_AUTHOR", "Li Ding");
-define("ME_CREATED", "2010-12-12");
-
-// configuration - * customizable section
-
-// configuration 1
-define("ME_TITLE", ME_NAME ."");
-define("ME_FILENAME", ME_NAME .".php");
 
 
 /////////////////////////////////
@@ -91,6 +81,15 @@ foreach($code_dependency as $code){
 
 
 class RdfNode{
+	////////////////////////////////
+	// configuration - version
+	////////////////////////////////
+	const ME_NAME = "phpRdfNode";
+	const ME_VERSION = "2011-01-25";
+	const ME_AUTHOR = "Li Ding";
+	const ME_CREATED = "2010-12-12";
+	
+
     const RDF_AUTO_TYPE = 0;
     const RDF_URI = 1;
     const RDF_BLANK = 2;
