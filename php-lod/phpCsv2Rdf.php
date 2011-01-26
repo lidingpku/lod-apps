@@ -130,19 +130,26 @@ class Csv2Rdf
 	const INPUT_NS_RESOURCE = "ns_resource";
 	const INPUT_URL_XMLBASE = "url_xmlbase";
 
+	const WORK_ROW_INDEX = "row_index";
+	const WORK_DELIM = "delim";
+
+
 	const SMART_NONE ="0";
-	const SMART_EXTRA_HEADER = "1";
-	const SMART_DELIM ="2";
-	const SMART_CELL ="3";
+	const SMART_EXTRA_HEADER_CELL = "1";
+	const SMART_NO_HEADER = "2";
+	const SMART_DELIM ="3";
+	const SMART_CELL ="4";
 
 	const DELIM_COMMA =",";
 	const DELIM_BAR ="|";
 	const DELIM_TAB ="\t";
 
+	const MAX_CSV_LINE_LENGTH = 0;
 
+	private $params_work;
 
 /********************************************************************************
- Section 4  Entry point
+ Section 5  Entry point
 *********************************************************************************/
 
 	public static function main_test(){		
@@ -170,7 +177,6 @@ class Csv2Rdf
 		$params_input[Csv2Rdf::INPUT_SMART_PARSE] = WebUtil::get_param(Csv2Rdf::INPUT_SMART_PARSE, SMART_NONE );
 		$params_input[Csv2Rdf::INPUT_DELIM] = WebUtil::get_param(Csv2Rdf::INPUT_DELIM );
 		
-		
 		if (empty($params_input[Csv2Rdf::INPUT_URL])){
 			Csv2Rdf::show_html($params_input);
 		}else{
@@ -180,13 +186,6 @@ class Csv2Rdf
 			$csv2rdf->convert($params_input, $map_ns_prefix);
 		}
 	}
-
-
-/********************************************************************************
- Section 5  Source code - key functions
-*********************************************************************************/
-	
-
 
 	public function convert($params_input, $map_ns_prefix){
 		//preprocess params
@@ -217,6 +216,11 @@ class Csv2Rdf
 		}
 
 
+
+		$this->params_work = array();
+		$this->params_work[Csv2Rdf::WORK_ROW_INDEX] =0;
+		$this->params_work[Csv2Rdf::WORK_DELIM] = urldecode($params_input[Csv2Rdf::INPUT_DELIM]);
+
 		error_reporting(E_ERROR);	
 		
 		$tempurl = $params_input[Csv2Rdf::INPUT_URL];
@@ -235,43 +239,51 @@ class Csv2Rdf
 
 		//load csv
 		$handle = fopen($tempurl, "r");
-		$row_index =0;
 		$messages = array();
 
 		error_reporting(E_ERROR | E_WARNING | E_PARSE);	
 		
 		if (FALSE==$handle){
-			Csv2Rdf::report_error("Error","cannot connect to the URL (open failed)");
+			Csv2Rdf::report_error("Error","FILE NOT FOUND","cannot connect to the URL (open failed)");
 			echo ("\n");
 			echo($tempurl);
 			echo ("\n");
 			print_r(error_get_last());
 			return;
 		}
+
 		
 		//skip csv rows
 		for ($i=0; $i <$params_input[Csv2Rdf::INPUT_ROW_BEGIN]; $i ++){
-			$row_index++;
-			$values = Csv2Rdf:: parse_file_row($handle, $params_input);
+			$values =$this->parse_file_row($handle, $params_input, false);
 		}
 
+/*
+		//$cnt_skipped_emptyrows=0;
 		//skip empty rows
-		$cnt_skipped_emptyrows=0;
-		while ( sizeof($values)==0 || strlen(trim($values[0]))==0 ){
+		while ( Csv2Rdf::isEmptyRow($values) ){
 			$values = Csv2Rdf::parse_file_row($handle, $params_input);
 			$cnt_skipped_emptyrows++;
 		}
-		if ($cnt_skipped_emptyrows>0){
-			$messages[] ="total empty rows skipped: ". $cnt_skipped_emptyrows;
-		}
-
+		//if ($cnt_skipped_emptyrows>0){
+		//	$messages[] ="total empty rows skipped: ". $cnt_skipped_emptyrows;
+		//}
+*/
 
 
 		//create/extract headers
-		if (strcmp($params_input[Csv2Rdf::INPUT_NO_HEADER],"on")==0){
+		$values_next =  Csv2Rdf::parse_file_row($handle, $params_input);
+		$bNoHeader = (strcmp($params_input[Csv2Rdf::INPUT_NO_HEADER],"on")==0);
+		if (strcmp($params_input[Csv2Rdf::INPUT_SMART_PARSE],Csv2Rdf::SMART_NO_HEADER)>=0 && Csv2Rdf::isRowsOverlap($values, $values_next)){
+			$messages[] = "[SMART NO HEADER ROW] - because the first two rows share common cells." ;
+			$bNoHeader=true;
+		}			
+
+		if ($bNoHeader){
 			for($i=0; $i<sizeof($values); $i++){
 				$props[] = sprintf("col_%03d",$i);
 			}
+
 		}else{
 			for($i=0; $i<sizeof($values); $i++){
 				if ( null!=$values[$i] && strlen($values[$i])>0)
@@ -280,26 +292,36 @@ class Csv2Rdf
 					$props[] = sprintf("col_%03d",$i);	//create a default column header if the header cell is empty
 			}
 
-			$row_index++;
-			$values = Csv2Rdf::parse_file_row($handle, $params_input);
+			$values =$values_next;
+			$values_next = FALSE;
 		}
 
+
 		//smart operation, reduce extra header
-		if (strcmp($params_input[Csv2Rdf::INPUT_SMART_PARSE],Csv2Rdf::SMART_EXTRA_HEADER)>=0){
-			if (sizeof($props) > sizeof($values)){
-				$messages[] = sprintf("[SMART EXTRA HEADER]- there are more cells in header rows (%d) than data row (%d). Real column is: %d", sizeof($props), sizeof($values), sizeof($values)) ;
+		if (strcmp($params_input[Csv2Rdf::INPUT_SMART_PARSE],Csv2Rdf::SMART_EXTRA_HEADER_CELL)>=0){			
+			if (!Csv2Rdf::isEmptyRow($values) && (sizeof($props) > sizeof($values))){
+				$messages[] = sprintf("[SMART EXTRA HEADER CELL]- there are more cells in header rows (%d) than data row (%d). Real column is:%d", sizeof($props), sizeof($values), sizeof($values)) ;
 				$props = array_slice($props, 0, sizeof($values));
 			}
 		}
 
 		//valdiate
-		if (!Csv2Rdf::validateHeader($props)){
+		if (!Csv2Rdf::validateHeaders($props)){
 			echo ("\nheader");
 			print_r($props);
 			echo ("\nvalue");
 			print_r($values);
 			return;
 		}
+
+		// validate
+		if (FALSE===$values || Csv2Rdf::isEmptyRow($values)){
+			Csv2Rdf::report_error("Error","CSV NO DATA ROW","cannot find data row in this file");
+			echo ("\nheader");
+			print_r($props);
+			return;
+		}
+
 
 		//valdiate
 		if (!Csv2Rdf::validateHeaderValues($props,$values, true)){
@@ -322,8 +344,17 @@ class Csv2Rdf
 			$this->add_row_pair($rdf, $params_input, $props, $values);
 			$row_count ++;
 
-			$row_index++;
-			$values = Csv2Rdf:: parse_file_row($handle, $params_input);
+			if (FALSE!==$values_next){
+				$values = $values_next;
+				$values_next =FALSE;
+			}else{
+				$values =$this->parse_file_row($handle, $params_input);
+			}
+
+			// if the row is empty
+			if (FALSE===$values){
+				break;
+			}
 
 			if ( (-1 != $params_input[Csv2Rdf::INPUT_ROW_TOTAL]) && ($params_input[Csv2Rdf::INPUT_ROW_TOTAL] <= $row_count) ){
 				break; //terminate conversion
@@ -341,8 +372,11 @@ class Csv2Rdf
 		fclose($handle);
 
 		// record process information
-		$messages[]= "[SMART DELIM] - the detected/preset deliminator is :".$params_input[Csv2Rdf::INPUT_DELIM];	// detected/preset deliminator
-		
+		if (!array_key_exists(Csv2Rdf::INPUT_DELIM, $params_input) || strlen($params_input[Csv2Rdf::INPUT_DELIM])==0){
+			$messages[]= "[SMART DELIM] - the detected delimiter is '".$this->params_work[Csv2Rdf::WORK_DELIM]
+						. "' and its encoded form is:" .urlencode($this->params_work[Csv2Rdf::WORK_DELIM]);	
+		}
+
 		//add property metadata
 		foreach($props as $property){
 			$subject = WebUtil::normalize_localname($property);
@@ -370,8 +404,10 @@ class Csv2Rdf
 		// get last modified date time
 		$predicate = new RdfNode( RdfStream::NS_DCTERMS."modified" ) ;
 		$remote = get_headers($url,1);
-		$object = new RdfNode( $remote["Last-Modified"] , RdfNode::RDF_STRING ) ; 
-		$rdf->add_triple($subject, $predicate, $object) ;
+		if (!empty($remote["Last-Modified"])){
+			$object = new RdfNode( $remote["Last-Modified"] , RdfNode::RDF_STRING ) ; 
+			$rdf->add_triple($subject, $predicate, $object) ;
+		}
 
 		$predicate = new RdfNode( RdfStream::NS_RDFS."comment" ) ;
 		$object = new RdfNode( "This RDF dataset is converted from csv using phpCsv2Rdf (http://code.google.com/p/lod-apps/wiki/phpCsv2Rdf).",  RdfNode::RDF_STRING ) ;
@@ -401,28 +437,40 @@ class Csv2Rdf
 	}
 
 	
-    public static function parse_file_row($handle, &$params_input){
-		if (!empty($params_input[Csv2Rdf::INPUT_DELIM])){
-			$values =  fgetcsv($handle,0, $params_input[Csv2Rdf::INPUT_DELIM]);	
+	// skip empty rows here
+    private function parse_file_row($handle, $params_input, $skipemptyrow=true){
+		if (strlen($this->params_work[Csv2Rdf::WORK_DELIM])>0){
+			do{
+				$values = fgetcsv($handle, Csv2Rdf::MAX_CSV_LINE_LENGTH, $this->params_work[Csv2Rdf::WORK_DELIM]);
+				$this->params_work[Csv2Rdf::WORK_ROW_INDEX]++;
+				if (FALSE === $values )
+					return FALSE ;	
+			}while  ( $skipemptyrow && Csv2Rdf::isEmptyRow($values) );
 		}else{
-			$values =  fgetcsv($handle);	
-			if (strcmp($params_input[Csv2Rdf::INPUT_SMART_PARSE],Csv2Rdf::SMART_DELIM)>=0){
+			do{
+				$values =  fgetcsv($handle);
+				$this->params_work[Csv2Rdf::WORK_ROW_INDEX]++;
+				if (FALSE === $values )
+					return FALSE ;	
+			}while ( $skipemptyrow && Csv2Rdf::isEmptyRow($values) );
+
+			if (strcmp($params_input[Csv2Rdf::INPUT_SMART_PARSE] ,Csv2Rdf::SMART_DELIM)>=0){
 				if (sizeof($values)==1){
 					$values = explode(Csv2Rdf::DELIM_BAR,$values[0]);
 				}else{
-					$params_input[Csv2Rdf::INPUT_DELIM]=Csv2Rdf::DELIM_COMMA;
+					$this->params_work[Csv2Rdf::WORK_DELIM]=Csv2Rdf::DELIM_COMMA;
 					return $values;
 				}
 
 				if (sizeof($values)==1){
 					$values = explode(Csv2Rdf::DELIM_TAB,$values[0]);
 				}else{
-					$params_input[Csv2Rdf::INPUT_DELIM]=Csv2Rdf::DELIM_BAR;
+					$this->params_work[Csv2Rdf::WORK_DELIM]=Csv2Rdf::DELIM_BAR;
 					return $values;
 				}
 
 				if (sizeof($values)>1){
-					$params_input[Csv2Rdf::INPUT_DELIM]=Csv2Rdf::DELIM_TAB;
+					$this->params_work[Csv2Rdf::WORK_DELIM]=Csv2Rdf::DELIM_TAB;
 					return $values;
 				}
 			}
@@ -446,6 +494,12 @@ class Csv2Rdf
 			$subject = new RdfNode( $rdf->create_subject($params_input[Csv2Rdf::INPUT_NS_RESOURCE]) ) ;
 		}
 
+		//declare this row as a data entry
+		$predicate = new RdfNode( RdfStream::NS_RDF."type" ) ;
+		$object = new RdfNode( RdfStream::NS_DGTWC."DataEntry" ) ;
+		$rdf->add_triple($subject, $predicate, $object) ;
+
+		//create properties
 		foreach($row as $property=>$value){
 			//skip generate a triple for key subject
 			if (!empty($key_property ) && strcmp($property, $key_property )===0){
@@ -491,31 +545,31 @@ class Csv2Rdf
 		}
 	}
 
-	private static function report_error($level, $message, $use_header = true){
+	private static function report_error($level, $key, $message, $use_header = true){
 		if (WebUtil::is_in_web_page_mode() && $use_header){
 			header ("Content-Type: text/plain");
 		}
 
-		echo $level .": " .$message . "\n";
+		echo "[$level:$key] $message\n";
 	}	
 
-	private static function validateHeader($props){
+	private static function validateHeaders($props){
 		//check if the header is empty
 		if (sizeof($props)==0){
-			Csv2Rdf::report_error("Error","no header specified, expect one.");
+			Csv2Rdf::report_error("Error","CSV NO HEADER","no header specified, expect one.");
 			return false;			
 		}
 
 		//check if the header is single column
 		if (sizeof($props)==1){
-			Csv2Rdf::report_error("Warning","only found one column, assume not right.");
+			Csv2Rdf::report_error("Error","CSV ONE COLUMN","only found one column, assume not right.");
 			return false;			
 		}
 
 
 		// avoid html input
 		if (strncasecmp($props[0],"<!DOCTYPE", 9)==0){
-			Csv2Rdf::report_error("Error","reading html file");
+			Csv2Rdf::report_error("Error","ENCOUNTER HTML","reading html file");
 			return false;			
 		}
 
@@ -524,7 +578,7 @@ class Csv2Rdf
 		//check header
 		for ($i=0; $i< sizeof($props); $i++){
 			if (empty($props[$i])){
-				Csv2Rdf::report_error("Error","empty header field");
+				Csv2Rdf::report_error("Error","CSV EMPTY FIELD","empty header field");
 				return false;				
 			}
 		} 
@@ -532,31 +586,39 @@ class Csv2Rdf
 		return true;
 	}
 
+	private static function isEmptyRow($row){
+		if (sizeof($row)>1){
+			return false;
+		}
+		return strlen(trim($row[0]))==0;
+	}
+
+	private static function isRowSameSize($row1, $row2){
+		return sizeof($row1)==sizeof($row2);
+	}
+
+	private static function isRowsOverlap($row1, $row2){
+		for ($i=0; $i< sizeof($row2); $i++){
+			if (strcmp($row1[$i],$row2[$i])==0){
+				return true;
+			}
+		}
+		return false;
+	}
 
 	private static function validateHeaderValues($props, $values, $use_header){
 		//check if the number of header fields is the same as the number of cells in the first row
-		if (sizeof($props)!=sizeof($values)){
-			Csv2Rdf::report_error("Warning","the number of header fields is different from the number of cells in the first row", $use_header);
-			echo ("\nheader");
-			print_r($props);
-			echo ("\nvalue");
-			print_r($values);
+		if (!Csv2Rdf::isRowSameSize($props,$values)){
+			Csv2Rdf::report_error("Error","CSV MISMATCH HEADER-VALUE COLUMN", "the number of header fields is different from the number of cells in the first row", $use_header);
 			return false;
 		}
 
 
 		//check if the assumed header is actually the real header
-		for ($i=0; $i< sizeof($values); $i++){
-			if (strcmp($props[$i],$values[$i])==0){
-				Csv2Rdf::report_error("Warning","found same value in header cell and value cell, it seems the csv does not have header row", $use_header);
-				echo ("\nheader");
-				print_r($props);
-				echo ("\nvalue");
-				print_r($values);
-				return false;				
-			}
-		} 
-
+		if (Csv2Rdf::isRowsOverlap($props, $values)){
+			Csv2Rdf::report_error("Error","CSV NO HEADER","found same value in header cell and value cell, it seems the csv does not have header row", $use_header);
+			return false;
+		}
 		return true;
 	}
 
@@ -566,7 +628,7 @@ class Csv2Rdf
 		$tempurl = WebUtil::get_final_url($url);
 		if (!empty($tempurl) && WebUtil::endsWith($tempurl,".zip")){
 			header ("Content-Type: text/plain");
-			echo("Error: cannot load csv from a zip file ");
+			Csv2Rdf::report_error("Error","URL END WITH ZIP","cannot load csv from a zip file ");
 			echo ("\n");
 			echo($tempurl);
 			return null;
@@ -582,10 +644,10 @@ class Csv2Rdf
 			}
 			//print_r($response);
 
-			$exts = array("zip","html");
+			$exts = array("zip","html","excel");
 			foreach ($exts as  $ext){
 				if (stripos($item, $ext)>0){
-					Csv2Rdf::report_error("Error","content-type mismatch ($ext).");
+					Csv2Rdf::report_error("Error","HTTP HEADER $ext","content-type mismatch ($ext).");
 					echo ($item);
 					echo ("\n");
 					echo($tempurl);
@@ -597,7 +659,7 @@ class Csv2Rdf
 
 
 		if (empty($response)){
-			Csv2Rdf::report_error("Error","cannot connect to the URL (no response)");
+			Csv2Rdf::report_error("Error","HTTP NO RESPONSE","cannot connect to the URL (no response)");
 			echo ("\n");
 			echo($tempurl);
 			echo ("\n");
@@ -692,12 +754,12 @@ Which row in CSV file is the first table row (default 1)? <input name="<?php ech
 
 Is the header row missing? <input name="<?php echo Csv2Rdf::INPUT_NO_HEADER; ?>" size="102" type="checkbox"> <br/>
 
-Do you know the deliminator for cells (we can guess/parse tsv,csv,bar-sv)? 
+Do you know the delimiter for cells (we can guess/parse tsv,csv,bar-sv)? 
 	   <SELECT name="<?php echo Csv2Rdf::INPUT_DELIM; ?>">
 		 <OPTION VALUE="" >  (n/a, default)</OPTION>
-		 <OPTION VALUE="<?php echo Csv2Rdf::DELIM_COMMA; ?>" > , (comma,csv)</OPTION>
-		 <OPTION VALUE="<?php echo Csv2Rdf::DELIM_BAR; ?>" > | (bar)</OPTION>
-		 <OPTION VALUE="<?php echo Csv2Rdf::DELIM_TAB; ?>" > TAB (tab, tsv)</OPTION>
+		 <OPTION VALUE="<?php echo urlencode(Csv2Rdf::DELIM_COMMA); ?>" > , (comma,csv)</OPTION>
+		 <OPTION VALUE="<?php echo urlencode(Csv2Rdf::DELIM_BAR); ?>" > | (bar)</OPTION>
+		 <OPTION VALUE="<?php echo urlencode(Csv2Rdf::DELIM_TAB); ?>" > TAB (tab, tsv)</OPTION>
 	   </SELECT> <br/>
 
 </fieldset>
@@ -709,11 +771,12 @@ Show me a sample URI of an instance (mapped from a CSV row): <input name="<?php 
 Run smart parse? 
 	   <SELECT name="<?php echo Csv2Rdf::INPUT_SMART_PARSE; ?>">
 		 <OPTION VALUE="<?php echo Csv2Rdf::SMART_NONE; ?>" SELECTED> default, no smart</OPTION>
-		 <OPTION VALUE="<?php echo Csv2Rdf::SMART_EXTRA_HEADER; ?>" >extra header</OPTION>
-		 <OPTION VALUE="<?php echo Csv2Rdf::SMART_DELIM; ?>" >deliminator</OPTION>
-		 <OPTION VALUE="<?php echo Csv2Rdf::SMART_CELL; ?>" >cell</OPTION>
+		 <OPTION VALUE="<?php echo Csv2Rdf::SMART_EXTRA_HEADER_CELL; ?>" >remove extra header cells</OPTION>
+		 <OPTION VALUE="<?php echo Csv2Rdf::SMART_NO_HEADER; ?>" >above, plus guessing if the table has no header row</OPTION>
+		 <OPTION VALUE="<?php echo Csv2Rdf::SMART_DELIM; ?>" >above, plus guessing delimiter of cells</OPTION>
+		 <OPTION VALUE="<?php echo Csv2Rdf::SMART_CELL; ?>" >above, plus guessing data type of cell</OPTION>
 	   </SELECT> <br/>
-<input name="<?php echo Csv2Rdf::INPUT_SMART_PARSE; ?>" type="checkbox">  check this option will identify empty, typed literal during conversion; otherwise all values will be kept as plain literal. <br/>
+<br/>
 
 Type the namespace of a property (mapped from a column header): <input name="<?php echo Csv2Rdf::INPUT_NS_PROPERTY; ?>" size="102" type="text">  <br/>
 </fieldset>
