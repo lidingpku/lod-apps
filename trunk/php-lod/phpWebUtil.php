@@ -49,30 +49,18 @@ software stack
 
 
 2. Change Log
+2011-01-25, version 0.3 (Li)
+* calculate URL redirection
+* normalize URL (white space to %20)
+* test if a php file isn running on a web server or in local system
+* move define code into const
+
 2010-12-12, version 0.1 (Li) 
 * the second version
 
 */
 
 
-/********************************************************************************
- Section 3  Source code - Configuration
-*********************************************************************************/
-
-////////////////////////////////
-// configuration - version
-////////////////////////////////
-
-define("ME_NAME", "phpWebUtil");
-define("ME_VERSION", "2010-12-12");
-define("ME_AUTHOR", "Li Ding");
-define("ME_CREATED", "2010-12-12");
-
-// configuration - * customizable section
-
-// configuration 1
-define("ME_TITLE", ME_NAME ."");
-define("ME_FILENAME", ME_NAME .".php");
 
 
 
@@ -82,6 +70,16 @@ define("ME_FILENAME", ME_NAME .".php");
 
 
 class WebUtil{
+
+	////////////////////////////////
+	// configuration - version
+	////////////////////////////////
+	const ME_NAME = "phpWebUtil";
+	const ME_VERSION = "2011-01-25";
+	const ME_AUTHOR = "Li Ding";
+	const ME_CREATED = "2010-12-12";
+
+
   public static function test(){
 	echo "Test";
   }
@@ -174,6 +172,12 @@ class WebUtil{
 	}
   }
 
+  static function normalize_url($url){
+  		$replace = array();
+  		$replace[" "]="%20";
+  		return str_replace(array_keys($replace),array_values($replace), $url);
+  }
+  
   static function parseFloat($ptString) {
             if (strlen($ptString) == 0) {
                     return false;
@@ -273,5 +277,93 @@ class WebUtil{
         return in_array(strtolower($needle), array_map('strtolower', $haystack));
     }	
 		
-}  
+
+
+
+	/**
+	 * source http://w-shadow.com/blog/2008/07/05/how-to-get-redirect-url-in-php/
+	 * 
+	 * get_redirect_url()
+	 * Gets the address that the provided URL redirects to,
+	 * or FALSE if there's no redirect. 
+	 *
+	 * @param string $url
+	 * @return string
+	 */
+	static function get_redirect_url($url){
+		$redirect_url = null; 
+	 
+		$url_parts = @parse_url($url);
+		if (!$url_parts) return false;
+		if (!isset($url_parts['host'])) return false; //can't process relative URLs
+		if (!isset($url_parts['path'])) $url_parts['path'] = '/';
+	 
+		$sock = fsockopen($url_parts['host'], (isset($url_parts['port']) ? (int)$url_parts['port'] : 80), $errno, $errstr, 30);
+		if (!$sock) return false;
+	 
+		$request = "HEAD " . $url_parts['path'] . (isset($url_parts['query']) ? '?'.$url_parts['query'] : '') . " HTTP/1.1\r\n"; 
+		$request .= 'Host: ' . $url_parts['host'] . "\r\n"; 
+		$request .= "Connection: Close\r\n\r\n"; 
+		fwrite($sock, $request);
+		$response = '';
+		while(!feof($sock)) $response .= fread($sock, 8192);
+		fclose($sock);
+	 
+		if (preg_match('/^Location: (.+?)$/m', $response, $matches)){
+			if ( substr($matches[1], 0, 1) == "/" )
+				return $url_parts['scheme'] . "://" . $url_parts['host'] . trim($matches[1]);
+			else
+				return trim($matches[1]);
+	 
+		} else {
+			return false;
+		}
+	 
+	}
+ 
+	/**
+	 * source http://w-shadow.com/blog/2008/07/05/how-to-get-redirect-url-in-php/
+	 * 
+	 * get_all_redirects()
+	 * Follows and collects all redirects, in order, for the given URL. 
+	 *
+	 * @param string $url
+	 * @return array
+	 */
+	static function get_all_redirects($url){
+		$redirects = array();
+		while ($newurl = WebUtil::get_redirect_url($url)){
+			if (in_array($newurl, $redirects)){
+				break;
+			}
+			$redirects[] = $newurl;
+			$url = $newurl;
+		}
+		return $redirects;
+	}
+	 
+	/**
+	 * source http://w-shadow.com/blog/2008/07/05/how-to-get-redirect-url-in-php/
+	 * 
+	 * get_final_url()
+	 * Gets the address that the URL ultimately leads to. 
+	 * Returns $url itself if it isn't a redirect.
+	 *
+	 * @param string $url
+	 * @return string
+	 */
+	static function get_final_url($url){
+		$redirects = WebUtil::get_all_redirects($url);
+		if (count($redirects)>0){
+			return array_pop($redirects);
+		} else {
+			return $url;
+		}
+	}
+
+	static function is_in_web_page_mode(){
+		return array_key_exists("HTTP_HOST", $_SERVER); 
+	}
+} 
+ 
 ?>

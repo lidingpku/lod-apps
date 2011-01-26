@@ -49,6 +49,9 @@ software stack
 
 
 2. Change Log
+2011-01-25, version 0.2.1 (Li)
+* move define code into const
+
 2010-12-30, version 0.2 (Li) 
 * the second version
 
@@ -59,34 +62,8 @@ software stack
 
 
 /********************************************************************************
- Section 3  Source code - Configuration
+ Section 3  Source code - dependency
 *********************************************************************************/
-
-////////////////////////////////
-// configuration - version
-////////////////////////////////
-
-define("ME_NAME", "phpJson2Rdf");
-define("ME_VERSION", "2010-12-30");
-define("ME_AUTHOR", "Li Ding");
-define("ME_CREATED", "2010-04-27");
-define("ME_HOMEPAGE", "http://code.google.com/p/lod-apps/wiki/phpLod#".ME_NAME);
-
-// configuration - * customizable section
-
-// configuration 1
-define("ME_TITLE", ME_NAME ."");
-define("ME_FILENAME", ME_NAME .".php");
-
-
-////////////////////////////////
-// constants
-////////////////////////////////
-
-
-/////////////////////////////////
-// dependency
-/////////////////////////////////
 $code_dependency = array();
 $code_dependency[] = "phpWebUtil.php";
 $code_dependency[] = "phpRdfStream.php";
@@ -95,39 +72,34 @@ foreach($code_dependency as $code){
 }
 
 
-/********************************************************************************
- Section 4  Source code - Main Function
-*********************************************************************************/
 
-$params_input= array();
-$params_input[Json2Rdf::INPUT_URL] = WebUtil::get_param(Json2Rdf::INPUT_URL);
-$params_input[Json2Rdf::INPUT_URL_CONFIG] = WebUtil::get_param(Json2Rdf::INPUT_URL_CONFIG);
-$params_input[Json2Rdf::INPUT_URI_SAMPLE] = WebUtil::get_param(Json2Rdf::INPUT_URI_SAMPLE);
-$params_input[Json2Rdf::INPUT_NS_PROPERTY] = WebUtil::get_param(Json2Rdf::INPUT_NS_PROPERTY);
-$params_input[Json2Rdf::INPUT_OUTPUT] = WebUtil::get_param(Json2Rdf::INPUT_OUTPUT, RdfStream::RDF_SYNTAX_RDFXML);
-$params_input[Json2Rdf::INPUT_SMART_PARSE] = WebUtil::get_param(Json2Rdf::INPUT_SMART_PARSE, false);
-
-
-
-
-
-
-if (empty($params_input[Json2Rdf::INPUT_URL])){
-	Json2Rdf::show_html($params_input);
-}else{
-
-	$Json2Rdf = new Json2Rdf();
-	$map_ns_prefix = RdfStream::get_default_map_ns_prefix();
-	$Json2Rdf->convert($params_input, $map_ns_prefix);
+// use web page configuration if this class is set as a web page. 
+if (WebUtil::is_in_web_page_mode()){
+	Json2Rdf::main_web();
 }
 
-
 /********************************************************************************
- Section 5  Source code - Class Definition
+ Section 4 Class Definition
 *********************************************************************************/
 
 class Json2Rdf
 {
+
+	////////////////////////////////
+	// configuration - version
+	////////////////////////////////
+	
+	const ME_NAME = "phpJson2Rdf";
+	const ME_VERSION = "2011-01-25";
+	const ME_AUTHOR = "Li Ding";
+	const ME_CREATED = "2010-04-27";
+	
+	// configuration - * customizable section
+	
+	// configuration 1
+	static public function getTitle(){		return Json2Rdf::ME_NAME ."";	}
+	static public function getFilename(){	return Json2Rdf::ME_NAME .".php";	}
+	static public function getHomepage(){	return "http://code.google.com/p/lod-apps/wiki/phpLod#" .Json2Rdf::ME_NAME;	}
 
 	const INPUT_URL = "url";
 	const INPUT_URL_CONFIG = "url_config";  //location of json config file
@@ -156,6 +128,35 @@ class Json2Rdf
 		$map_ns_prefix = $Json2Rdf->get_default_map_ns_prefix();
 		$Json2Rdf->convert($params, $map_ns_prefix);
 	}
+
+/********************************************************************************
+ Section 4  Entry point
+*********************************************************************************/
+
+	public static function main_web(){
+		$params_input= array();
+		$params_input[Json2Rdf::INPUT_URL] = WebUtil::get_param(Json2Rdf::INPUT_URL);
+		$params_input[Json2Rdf::INPUT_URL_CONFIG] = WebUtil::get_param(Json2Rdf::INPUT_URL_CONFIG);
+		$params_input[Json2Rdf::INPUT_URI_SAMPLE] = WebUtil::get_param(Json2Rdf::INPUT_URI_SAMPLE);
+		$params_input[Json2Rdf::INPUT_NS_PROPERTY] = WebUtil::get_param(Json2Rdf::INPUT_NS_PROPERTY);
+		$params_input[Json2Rdf::INPUT_OUTPUT] = WebUtil::get_param(Json2Rdf::INPUT_OUTPUT, RdfStream::RDF_SYNTAX_RDFXML);
+		$params_input[Json2Rdf::INPUT_SMART_PARSE] = WebUtil::get_param(Json2Rdf::INPUT_SMART_PARSE, false);
+				
+		
+		if (empty($params_input[Json2Rdf::INPUT_URL])){
+			Json2Rdf::show_html($params_input);
+		}else{
+		
+			$Json2Rdf = new Json2Rdf();
+			$map_ns_prefix = RdfStream::get_default_map_ns_prefix();
+			$Json2Rdf->convert($params_input, $map_ns_prefix);
+		}
+	
+	}
+
+/********************************************************************************
+ Section 5  Source code - key functions
+*********************************************************************************/
 
 	public function convert($params_input, $map_ns_prefix){
 		//load json-based config file
@@ -391,7 +392,7 @@ class Json2Rdf
 ?><!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <html>
 <head>
-  <title><?php echo ME_TITLE; ?></title>
+  <title><?php echo Json2Rdf::getTitle(); ?></title>
   <style type="text/css">
      img.menuimg { border:0; }
      input {margin:5px}
@@ -420,13 +421,13 @@ class Json2Rdf
 <td>
 	<div>
        	<!-- link to demo's wiki page -->		
-		<a class"=info" href="<?php echo ME_HOMEPAGE; ?>">
+		<a class"=info" href="<?php echo Json2Rdf::getHomepage(); ?>">
 		<img src="http://lod-apps.googlecode.com/svn/trunk/doc/lod-apps-info.png" class="menuimg" alt="information"/></a>
 	</div>
 </td>
 <td>
 	<div style="margin-left:20px">
-		<font size="200%"><strong> <?php echo ME_TITLE; ?> </strong></font>	(version <?php echo ME_VERSION; ?>)
+		<font size="200%"><strong> <?php echo Json2Rdf::getTitle(); ?> </strong></font>	(version <?php echo Json2Rdf::ME_VERSION; ?>)
 		<br/>
 		A RESTful web service that convert JSON (a tree-ish complex object) into RDF.
 	</div>
@@ -435,7 +436,7 @@ class Json2Rdf
 </table>
 
 <div style="margin:10px">
-<form method="get" action="<?php echo ME_FILENAME; ?>" border="1">
+<form method="get" action="<?php echo Json2Rdf::getFilename(); ?>" border="1">
 
 <fieldset>
 <legend>JSON options</legend>
@@ -478,9 +479,9 @@ Type the namespace of a property (mapped from the name of the name/value pairs):
 <div style="margin:10px">
 <h2>Online Resources</h2>
 <ul>
-<li>An example here: the <a href="<?php echo ME_FILENAME; ?>?url=http://lod-apps.googlecode.com/svn/trunk/php-lod/demo/example2.js">conversion result</a> of a <a href="http://lod-apps.googlecode.com/svn/trunk/php-lod/demo/example2.js">JSON file</a></li>
-<li>More information about this tool can be found at its <a href="<?php echo ME_HOMEPAGE; ?>">homepage</a> </li>
-<li>Discuss this tool on twitter using <font color="green"><u>#<?php echo ME_NAME; ?></u></font> , and check out <a href="http://twitter.com/#search?q=%23<?php echo ME_NAME; ?>">related tweets</a> </li>
+<li>An example here: the <a href="<?php echo Json2Rdf::getFilename(); ?>?url=http://lod-apps.googlecode.com/svn/trunk/php-lod/demo/example2.js">conversion result</a> of a <a href="http://lod-apps.googlecode.com/svn/trunk/php-lod/demo/example2.js">JSON file</a></li>
+<li>More information about this tool can be found at its <a href="<?php echo Json2Rdf::getHomepage(); ?>">homepage</a> </li>
+<li>Discuss this tool on twitter using <font color="green"><u>#<?php echo Json2Rdf::ME_NAME; ?></u></font> , and check out <a href="http://twitter.com/#search?q=%23<?php echo Json2Rdf::ME_NAME; ?>">related tweets</a> </li>
 <li>Report issues/bugs/enhancement/comments at <a href="http://code.google.com/p/lod-apps/issues">here</a> </li>
 </ul>
 </div>
