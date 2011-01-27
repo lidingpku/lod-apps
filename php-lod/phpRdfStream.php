@@ -123,8 +123,8 @@ class RdfStream
 
 	// print function	
 	private function println($str, $encode=false){
-		if ($encode)
-			$str =utf8_encode($str);
+		//if ($encode)
+		//	$str =utf8_encode($str);
 		echo $str . "\n";
 	}
 

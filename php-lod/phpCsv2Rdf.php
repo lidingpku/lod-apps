@@ -283,6 +283,7 @@ class Csv2Rdf
 			$bNoHeader=true;
 		}			
 
+
 		if ($bNoHeader){
 			for($i=0; $i<sizeof($values); $i++){
 				$props[] = sprintf("col_%03d",$i);
@@ -295,6 +296,7 @@ class Csv2Rdf
 				else
 					$props[] = sprintf("col_%03d",$i);	//create a default column header if the header cell is empty
 			}
+
 
 			$values =$values_next;
 			$values_next = FALSE;
@@ -320,10 +322,7 @@ class Csv2Rdf
 
 		// validate
 		if (FALSE===$values || Csv2Rdf::isEmptyRow($values)){
-			Csv2Rdf::report_error("Error","CSV NO DATA ROW","cannot find data row in this file");
-			echo ("\nheader");
-			print_r($props);
-			return;
+			$messages[] = "[NOTE CSV NO DATA ROW] cannot find data row in this file";
 		}
 
 
@@ -343,7 +342,7 @@ class Csv2Rdf
 
 		// content
 		$row_count =0;
-		while ( $values !== FALSE) {
+		while ( $values !== FALSE && !Csv2Rdf::isEmptyRow($values) ) {
 
 			$this->add_row_pair($rdf, $params_input, $props, $values);
 			$row_count ++;
@@ -387,7 +386,9 @@ class Csv2Rdf
 
 		//add property metadata
 		foreach($props as $property){
+
 			$subject = WebUtil::normalize_localname($property);
+
 			$subject = new RdfNode( $params_input[Csv2Rdf::INPUT_NS_PROPERTY] . $subject );
 
 			$predicate = new RdfNode( RdfStream::NS_RDF."type" ) ;
@@ -449,25 +450,32 @@ class Csv2Rdf
 	public function fopen_utf8($filename){
 	    $encoding='';
 	    $handle = fopen($filename, 'r');
+
+	    
 	    $bom = fread($handle, 2);
-	    fclose($handle);
-	   
-	
 	    if($bom === chr(0xff).chr(0xfe)  || $bom === chr(0xfe).chr(0xff)){
 	            // UTF16 Byte Order Mark present
 	            $encoding = 'UTF-16';
 	    } else {
-	        $handle = fopen($filename, 'r');
-	        $file_sample = fread($handle, 1000) + 'e'; //read first 1000 bytes
-	        // + e is a workaround for mb_string bug
-	        fclose($handle);
-	   
-	        $encoding = mb_detect_encoding($file_sample , 'UTF-8, UTF-7, ASCII, EUC-JP,SJIS, eucJP-win, SJIS-win, JIS, ISO-2022-JP');
+		$bom = $bom . fread($handle, 1);
+		if ($bom === chr(0xef).chr(0xbb).chr(0xbf)) {
+	            $encoding = 'UTF-8';			
+		}else{
+		       fclose($handle);
+		       $handle = fopen($filename, 'r');
+	       	$file_sample = fread($handle, 1000) + 'e'; //read first 1000 bytes
+		       // + e is a workaround for mb_string bug
+	
+		       $encoding = mb_detect_encoding($file_sample , 'UTF-8, UTF-7, ASCII, EUC-JP,SJIS, eucJP-win, SJIS-win, JIS, ISO-2022-JP');
+
+	       	fclose($handle);
+  	  	      	$handle = fopen($filename, 'r');	   
+		}
 	    }
 
-	    $handle = fopen($filename, 'r');
 	    if ($encoding){
 	        stream_filter_append($handle, 'convert.iconv.'.$encoding.'/UTF-8');
+
 		$this->params_work[Csv2Rdf::WORK_ENCODING]=$encoding;
 	    }
 
@@ -549,7 +557,6 @@ class Csv2Rdf
 			}
 			
 			$predicate = WebUtil::normalize_localname($property);
-
 			$predicate = new RdfNode( $params_input[Csv2Rdf::INPUT_NS_PROPERTY] . $predicate );
 
 			
@@ -650,7 +657,7 @@ class Csv2Rdf
 
 	private static function validateHeaderValues($props, $values, $use_header){
 		//check if the number of header fields is the same as the number of cells in the first row
-		if (!Csv2Rdf::isRowSameSize($props,$values)){
+		if (!Csv2Rdf::isRowSameSize($props,$values) && !Csv2Rdf::isEmptyRow($values) ){
 			Csv2Rdf::report_error("Error","CSV MISMATCH HEADER-VALUE COLUMN", "the number of header fields is different from the number of cells in the first row", $use_header);
 			return false;
 		}
