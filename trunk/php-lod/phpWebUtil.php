@@ -230,7 +230,7 @@ class WebUtil{
   
    	static public function normalize_localname($value){
 		$temp = $value;
-		$temp = str_replace(' ', '_', trim(preg_replace('/\W+/',' ', $temp )));
+		$temp = str_replace(' ', '_', trim(preg_replace('/[\p{P}]+/',' ', $temp )));
 		$temp = strtolower($temp);
 		if (is_numeric(substr($temp,0,1))){
 			$temp = "num_".$temp;
@@ -364,6 +364,7 @@ class WebUtil{
 	static function is_in_web_page_mode(){
 		return array_key_exists("HTTP_HOST", $_SERVER); 
 	}
+	
 } 
  
 ?>

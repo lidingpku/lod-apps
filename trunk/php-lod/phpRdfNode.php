@@ -203,7 +203,8 @@ class RdfNode{
 	}
 	
 	function get_value(){
-		return utf8_encode($this->value);
+		return $this->value;
+		//return utf8_encode($this->value);
 	}
 	
 }
