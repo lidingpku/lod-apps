@@ -226,11 +226,13 @@ class WebUtil{
             return $result;
     }   
 
- 
+ 	//http://www.regular-expressions.info/unicode.html
   
    	static public function normalize_localname($value){
 		$temp = $value;
-		$temp = str_replace(' ', '_', trim(preg_replace('/[\p{P}]+/',' ', $temp )));
+		//$temp = str_replace(' ', '_', trim(preg_replace('/[\p{P}|\p{S}|\p{C}]/',' ', $temp )));
+		$temp = trim(preg_replace('/[\p{P}|\p{Sm}|\p{Sc}]/',' ', $temp ));
+		$temp = preg_replace('/\\s+/', '_', $temp);
 		$temp = strtolower($temp);
 		if (is_numeric(substr($temp,0,1))){
 			$temp = "num_".$temp;
@@ -364,6 +366,71 @@ class WebUtil{
 	static function is_in_web_page_mode(){
 		return array_key_exists("HTTP_HOST", $_SERVER); 
 	}
+	
+	
+	// open a file in utf8
+	// source: http://www.practicalweb.co.uk/blog/08/05/18/reading-unicode-excel-file-php
+	// http://us3.php.net/manual/en/function.mb-detect-encoding.php
+	static public function detect_encoding($filename){
+	    $encoding = FALSE;
+        $ret = array();
+	    
+	    // read sample data
+	    $handle = WebUtil::fopen_read($filename);
+	    	    
+	    $file_sample = fread($handle, 1000); //+ 'e'; //read first 1000 bytes
+           fclose($handle);
+
+	    
+	    if (strlen($file_sample)>=2){
+		    $bom2 = substr($file_sample,0,2);	    
+	    	if($bom2 === chr(0xff).chr(0xfe)  || $bom === chr(0xfe).chr(0xff)){
+	            // UTF16 Byte Order Mark present
+	            $ret["encoding"] = 'UTF-16';
+	            $ret["skip"] = 2;
+	            return $ret;
+		    } 
+	    }
+	    
+	    
+	    if (strlen($file_sample)>=3){
+		    $bom3 = substr($file_sample,0,3);	    
+			if ($bom3 === chr(0xef).chr(0xbb).chr(0xbf)) {
+	            $ret["encoding"] = 'UTF-8';
+	            $ret["skip"] = 2;
+	            return $ret;
+			}
+		}
+		
+       	$encoding = mb_detect_encoding($file_sample+'e' , 'UTF-8, UTF-7, ASCII, EUC-JP,SJIS, eucJP-win, SJIS-win, JIS, ISO-2022-JP');
+	       // + e is a workaround for mb_string bug
+
+        $ret["encoding"] = $encoding;
+        $ret["skip"] = 0;
+        return $ret;
+	}
+
+	public static function fopen_read($filename, $encoding=FALSE, $skip=0){
+	      	$handle = fopen($filename, 'r');
+	      	if ($skip>0){
+      			fread($handle, $skip);
+      		}
+	    
+	    if ($encoding){
+	        stream_filter_append($handle, 'convert.iconv.'.$encoding.'/UTF-8');
+	    }
+		
+	    return  $handle;
+	} 
+
+	public static function encode_utf8($x){
+	  if(strcmp(mb_detect_encoding($x,'UTF-8,ASCII'),'UTF-8')==0){
+	    return $x;
+	  }else{
+echo mb_detect_encoding($x,'UTF-8,ASCII');
+	    return utf8_encode($x);
+	  }
+	} 
 	
 } 
  

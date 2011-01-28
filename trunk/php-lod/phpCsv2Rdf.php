@@ -132,7 +132,8 @@ class Csv2Rdf
 
 	const WORK_ROW_INDEX = "row_index";
 	const WORK_DELIM = "delim";
-	const WORK_ENCODING = "encoding";
+	const WORK_FILE_ENCODING = "encoding";
+	const WORK_FILE_SKIP = "skip";
 
 
 
@@ -241,7 +242,10 @@ class Csv2Rdf
 
 		//load csv
 		//$handle = fopen($tempurl, "r");
-		$handle = $this->fopen_utf8($tempurl);
+		$ret = WebUtil::detect_encoding($tempurl);
+		$this->params_work[Csv2Rdf::WORK_FILE_ENCODING]=$ret["encoding"];
+		$this->params_work[Csv2Rdf::WORK_FILE_SKIP]=$ret["skip"];
+		$handle = WebUtil::fopen_read($tempurl, $ret["encoding"], $ret["skip"]);
 
 		$messages = array();
 
@@ -380,8 +384,11 @@ class Csv2Rdf
 						. "' and its encoded form is:" .urlencode($this->params_work[Csv2Rdf::WORK_DELIM]);	
 		}
 
-		if (array_key_exists(Csv2Rdf::WORK_ENCODING, $this->params_work) ){
-			$messages[]= "[WORK ENCODING] the encoding of the source csv is :".$this->params_work[Csv2Rdf::WORK_ENCODING];	
+		if ($this->params_work[Csv2Rdf::WORK_FILE_ENCODING]){
+			$messages[]= "[WORK FILE ENCODING] the encoding of the source csv is :".$this->params_work[Csv2Rdf::WORK_FILE_ENCODING];	
+		}
+		if ($this->params_work[Csv2Rdf::WORK_FILE_SKIP]){
+			$messages[]= "[WORK FILE SKIP] bytes to be skipped from the beginning of file :".$this->params_work[Csv2Rdf::WORK_FILE_SKIP];	
 		}
 
 		//add property metadata
@@ -444,44 +451,6 @@ class Csv2Rdf
 		//footer
 		$rdf->end();
 	}
-
-	// open a file in utf8
-	// source: http://www.practicalweb.co.uk/blog/08/05/18/reading-unicode-excel-file-php
-	public function fopen_utf8($filename){
-	    $encoding='';
-	    $handle = fopen($filename, 'r');
-
-	    
-	    $bom = fread($handle, 2);
-	    if($bom === chr(0xff).chr(0xfe)  || $bom === chr(0xfe).chr(0xff)){
-	            // UTF16 Byte Order Mark present
-	            $encoding = 'UTF-16';
-	    } else {
-		$bom = $bom . fread($handle, 1);
-		if ($bom === chr(0xef).chr(0xbb).chr(0xbf)) {
-	            $encoding = 'UTF-8';			
-		}else{
-		       fclose($handle);
-		       $handle = fopen($filename, 'r');
-	       	$file_sample = fread($handle, 1000) + 'e'; //read first 1000 bytes
-		       // + e is a workaround for mb_string bug
-	
-		       $encoding = mb_detect_encoding($file_sample , 'UTF-8, UTF-7, ASCII, EUC-JP,SJIS, eucJP-win, SJIS-win, JIS, ISO-2022-JP');
-
-	       	fclose($handle);
-  	  	      	$handle = fopen($filename, 'r');	   
-		}
-	    }
-
-	    if ($encoding){
-	        stream_filter_append($handle, 'convert.iconv.'.$encoding.'/UTF-8');
-
-		$this->params_work[Csv2Rdf::WORK_ENCODING]=$encoding;
-	    }
-
-	    return  ($handle);
-	} 
-
 
 	
 	// skip empty rows here
