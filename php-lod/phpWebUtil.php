@@ -483,6 +483,16 @@ echo mb_detect_encoding($x,'UTF-8,ASCII');
 		$pageURI .= $_SERVER['SERVER_PORT'] != '80' ? $_SERVER["SERVER_NAME"].":".$_SERVER["SERVER_PORT"].$_SERVER["REQUEST_URI"] : $_SERVER['SERVER_NAME'] . $_SERVER['REQUEST_URI'];
 		return $pageURI;
 	}	
+	
+	// unused. it require liburl installation
+	public static function get_url_contents($url) {
+		$ch = curl_init();
+		curl_setopt($ch, CURLOPT_URL, $url);
+		$url_contents = curl_exec($ch);
+		curl_close($ch);
+		return $url_contents;
+	}
+	
 } 
  
 ?>
