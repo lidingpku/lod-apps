@@ -246,19 +246,19 @@ class WebUtil{
                 foreach ($key as $onekey){
                         $ret = get_param($onekey);
                         if ($ret)
-                                return $ret;
+                                return trim($ret);
                 }
         }else{  
                
                 if ($_GET)
                         if (array_key_exists($key,$_GET))
-                                return $_GET[$key];
+                                return trim($_GET[$key]);
                 if ($_POST)
                         if (array_key_exists($key,$_POST))
-                                return $_POST[$key];    
+                                return trim($_POST[$key]);    
         }
        
-        return $default;
+        return trim($default);
 	}
 
 	static function is_hash_uri($uri){
@@ -432,6 +432,57 @@ echo mb_detect_encoding($x,'UTF-8,ASCII');
 	  }
 	} 
 	
+	
+	////////////////////////////////////////
+	// functions - compose restful url
+	////////////////////////////////////////
+	
+	// compose url
+	public static function build_restful_url($url, $params, $debug=false){
+		$url .="?";
+		foreach ($params as $key=>$value){
+			$url .=  "$key=".WebUtil::encode_my_url($value)."&";
+		}
+		
+		if ($debug){
+			echo $url;
+			if (array_key_exists("query",$params)){
+				echo "<pre>";
+				echo $params["query"];
+				echo "</pre>";
+			}
+		}
+		
+		return $url;
+	}
+	
+	public static function  encode_my_url($url){
+	        $url = urlencode($url);
+	        $pattern = array("%7B","%7D");
+	        $value = array("{","}");
+	        str_replace($pattern, $value, $url);
+	        return $url;
+	}
+	
+	
+
+	// get current page's URL
+	public static function get_current_page_url()
+	{	
+		$pageURL = array_key_exists('HTTPS',$_SERVER) && $_SERVER['HTTPS'] == 'on' ? 'https://' : 'http://';
+		$pageURL .= $_SERVER['SERVER_PORT'] != '80' ? $_SERVER["SERVER_NAME"].":".$_SERVER["SERVER_PORT"].$_SERVER["PHP_SELF"] : $_SERVER['SERVER_NAME'] . $_SERVER['PHP_SELF'];
+		return $pageURL;
+	}
+	
+	
+	// get current page's URI
+	// source http://www.webcheatsheet.com/PHP/get_current_page_url.php
+	public static function get_current_page_uri()
+	{
+		$pageURI = $_SERVER['HTTPS'] == 'on' ? 'https://' : 'http://';
+		$pageURI .= $_SERVER['SERVER_PORT'] != '80' ? $_SERVER["SERVER_NAME"].":".$_SERVER["SERVER_PORT"].$_SERVER["REQUEST_URI"] : $_SERVER['SERVER_NAME'] . $_SERVER['REQUEST_URI'];
+		return $pageURI;
+	}	
 } 
  
 ?>
