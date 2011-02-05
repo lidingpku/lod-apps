@@ -13,6 +13,7 @@ This page describes a set of tools that provide online services for linking open
 || phpRdfStream || api  || alpha || phpRdfNode, phpWebUtil ||
 || [#phpCsv2Rdf] || service|| alpha  || phpRdfStream, phpRdfNode, phpWebUtil ||
 || [#phpJson2Rdf] || service|| alpha  || phpRdfStream, phpRdfNode, phpWebUtil ||
+|| [#phpSparqlExplorer] || service|| alpha  || phpWebUtil ||
 
 == phpCsv2Rdf ==
 Convert online CSV data into RDF, N-Triples or N-Quads.
@@ -59,4 +60,4 @@ Here is an example conversion configuration file (in JSON)
 </pre>
 
 ==phpSparqlExplorer==
-A simple SPARQL endpoint explorer to navigate URI space and retrieve descriptions of and reference to the URI.
+A simple SPARQL endpoint explorer to navigate URI space and retrieve descriptions of and reference to the URI. It also allow users to check sources of triples. 
