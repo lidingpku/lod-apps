@@ -57,3 +57,6 @@ Here is an example conversion configuration file (in JSON)
 ]
 }
 </pre>
+
+==phpSparqlExplorer==
+A simple SPARQL endpoint explorer to navigate URI space and retrieve descriptions of and reference to the URI.
