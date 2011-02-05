@@ -200,14 +200,14 @@ class SparqlExplorer
 		  $data .= SparqlExplorer::get_rdfa_data_o($params_input,false, true);
 		//  $data .= '</div>';
 
-
 		  return $data;
 	}
 	
 	
 	static function  get_rdfa_data_s($params_input, $xhtml=false, $visible=true){
 		  $params_desc = array();
-		  
+		    $ret ="";
+	  
 		  if (SparqlExplorer::is_show_source($params_input)){
 		      $params_desc["query"]= sprintf("
 				SELECT distinct ?p ?o ?g  
@@ -224,7 +224,7 @@ class SparqlExplorer
 				SELECT distinct ?p ?o 
 				WHERE{ 
 				   {GRAPH ?g { <%s> ?p ?o . } }
-				   UNION
+				   UNION 
 				   { { <%s> ?p ?o . } }
 				} order by ?p ?o limit %d
 				",$params_input[SparqlExplorer::INPUT_URI]
@@ -240,8 +240,27 @@ class SparqlExplorer
 			print_r($params_input);
 		   }
 	  
+		$remote = get_headers($params_input[SparqlExplorer::WORK_URI_DATA]);
+		$responsecode = substr($remote [0], 9, 3);
+		if ( strcmp("200", $responsecode) !=0){
+		  	$ret .= ("Encounter errors <br/>" );
+
+			$ret .=  "<pre>";
+		  	$ret .= (htmlentities(implode($remote,"\n")));
+			$ret .=  "</pre>";
+
+			if ( strcmp("400", $responsecode) ==0){
+				//$f = WebUtil::fopen_read($params_input[SparqlExplorer::WORK_URI_DATA]);
+				//$data = stream_get_contents($f, 1000);
+			  	//$ret .= $data;
+				$ret .= sprintf("<iframe style=\"width:800; height:200\" src=\"%s\"></iframe>", $params_input[SparqlExplorer::WORK_URI_DATA]);
+			}
+		}else{
+
 	  $data = file_get_contents($params_input[SparqlExplorer::WORK_URI_DATA]);
 	  $json = json_decode ($data);
+
+
 	  //print_r($json->results->bindings[0]->p);  
 	  if(isset($json->results->bindings[0])){
 		$params_input["map_ns_prefix"] =array(
@@ -254,7 +273,6 @@ class SparqlExplorer
 		);
 		$params_input["prefixid"] =1;
 	    
-	    $ret ="";
 		
 	    if ($visible){
 	      $ret .= sprintf("subject: %s \n", SparqlExplorer::create_link($params_input[SparqlExplorer::INPUT_URI], null,  $params_input ) );
@@ -323,7 +341,7 @@ class SparqlExplorer
 		foreach ($params_input["map_ns_prefix"] as $ns=>$prefix){
 			$ns_prefix_map .= sprintf("  xmlns:%s = \"%s\"\n", $prefix, $ns); 
 		}
-	
+	    
 	
 	    $ret .= sprintf ("<div about=\"%s\" %s>\n", $params_input[SparqlExplorer::INPUT_URI], $ns_prefix_map );
 	    foreach($json->results->bindings as $triple){
@@ -333,17 +351,27 @@ class SparqlExplorer
 				$ret .= sprintf("<div rel=\"%s\" resource=\"%s\" ></div>\n",$qname_p, $triple->o->value); 
 				break;
 			case "literal":
-				$ret .= sprintf("<div  property=\"%s\" content=\"%s\"></div>\n",$qname_p, htmlentities($triple->o->value)); 
+				$ret .= sprintf("<div  property=\"%s\" content=\"%s\"></div>\n",$qname_p, htmlentities($triple->o->value, ENT_QUOTES, "UTF-8")); 
 				break;
 			case "typed-literal":
-				$ret .= sprintf("<div  property=\"%s\" datatype=\"%s\" content=\"%s\"></div>\n",$qname_p, $triple->o->datatype, htmlentities($triple->o->value)); 
+				$ret .= sprintf("<div  property=\"%s\" datatype=\"%s\" content=\"%s\"></div>\n",$qname_p, $triple->o->datatype, htmlentities($triple->o->value, ENT_QUOTES, "UTF-8")); 
 				break;
 			default:
 			 //print_r( $triple->o);
 		}
 	    }
 	    $ret .= "</div>\n";
-	    
+	  
+	    }	
+
+		}
+	  	// add sparql query here
+	    $ret .= "<div style=\"background:#FEE\">";
+	    $ret .=sprintf("<a href=\"#sparql_query_description\" onclick=\"toggle_visibility('sparql_query_description');\">Show/Hide SPARQL query</a>");	
+	    $ret .= "<a name=\"sparql_query_description\"></a>";
+	    $ret .= sprintf("<div id=\"sparql_query_description\" style=\"display:none\">SPARQL Query\n<pre>%s</pre>\n</div>\n", htmlentities($params_desc["query"], ENT_QUOTES, "UTF-8"));
+	    $ret .="</div>";
+		    
 	    $ret = "<div>\n$ret\n</div>\n";
 	
 	    if ($xhtml){
@@ -357,7 +385,6 @@ class SparqlExplorer
 	'.$ret. '
 	</body>
 	</html>';
-	    }	
 	
 	  }
 	 return $ret;
@@ -366,6 +393,7 @@ class SparqlExplorer
 
 	static function  get_rdfa_data_o($params_input, $xhtml=false, $visible=true){
 	    $params_desc = array();
+	    $ret ="";
 		  
 		  if (SparqlExplorer::is_show_source($params_input)){
 		      $params_desc["query"]= sprintf("
@@ -400,8 +428,27 @@ class SparqlExplorer
 			print_r($params_input);
 		   }
 
+
+		$remote = get_headers($params_input[SparqlExplorer::WORK_URI_DATA]);
+		$responsecode = substr($remote [0], 9, 3);
+		if ( strcmp("200", $responsecode) !=0){
+		  	$ret .= ("Encounter errors <br/>" );
+
+			$ret .=  "<pre>";
+		  	$ret .= (htmlentities(implode($remote,"\n")));
+			$ret .=  "</pre>";
+
+			if ( strcmp("400", $responsecode) ==0){
+				//$f = WebUtil::fopen_read($params_input[SparqlExplorer::WORK_URI_DATA]);
+				//$data = stream_get_contents($f, 1000);
+			  	//$ret .= $data;
+				$ret .= sprintf("<iframe style=\"width:800; height:200\" src=\"%s\"></iframe>", $params_input[SparqlExplorer::WORK_URI_DATA]);
+			}
+		}else{
+
 	  $data = file_get_contents($params_input[SparqlExplorer::WORK_URI_DATA]);
 	  $json = json_decode ($data);
+
 	  //print_r($json->results->bindings[0]->p);  
 	  if(isset($json->results->bindings[0])){
 		$params_input["map_ns_prefix"] =array(
@@ -414,7 +461,6 @@ class SparqlExplorer
 		);
 		$params_input["prefixid"] =1;
 	    
-	    $ret ="";
 		
 	    if ($visible){
 	      $ret .= sprintf("object: %s \n", SparqlExplorer::create_link($params_input[SparqlExplorer::INPUT_URI], null,  $params_input ) );
@@ -423,7 +469,7 @@ class SparqlExplorer
 		      $ret .= "<tr><td>subject</td><td>predicate</td><td>graph(source)</td></tr>\n";
 	 }else{
 		      $ret .= "<tr style=\"background:#DDD\"><td>subject</td><td>predicate</td></tr>\n";
-	}
+	 }
 
 
 		$p_prev=null;
@@ -485,6 +531,16 @@ class SparqlExplorer
 	       $ret .= "</div>\n";
 	    }
 	    
+
+	    }	
+		}
+	  	// add sparql query here
+	    $ret .= "<div style=\"background:#FEE\">";
+	    $ret .=sprintf("<a href=\"#sparql_query_ref\" onclick=\"toggle_visibility('sparql_query_ref');\">Show/Hide SPARQL query</a>");	
+	    $ret .= "<a name=\"sparql_query_ref\"></a>";
+	    $ret .= sprintf("<div id=\"sparql_query_ref\" style=\"display:none\">SPARQL Query\n<pre>%s</pre>\n</div>\n", htmlentities($params_desc["query"], ENT_QUOTES, "UTF-8"));
+	    $ret .="</div>";
+	    
 	    $ret = "<div>\n$ret\n</div>\n";
 	
 	    if ($xhtml){
@@ -497,9 +553,7 @@ class SparqlExplorer
 	<body>
 	'.$ret. '
 	</body>
-	</html>';
-	    }	
-	
+	</html>';	
 	  }
 	 return $ret;
 	}
@@ -623,8 +677,8 @@ show source column? <input name="<?php echo SparqlExplorer::INPUT_SHOW_SOURCE; ?
 
 max distinct row to return:
 	   <SELECT name="<?php echo SparqlExplorer::INPUT_SHOW_MAX_ROW; ?>">
-		 <OPTION VALUE="10" >10</OPTION>
 		 <OPTION VALUE="100" >100 (default)</OPTION>
+		 <OPTION VALUE="10" >10</OPTION>
 		 <OPTION VALUE="1000" >1000</OPTION>
 	   </SELECT> <br/>
 </div>
