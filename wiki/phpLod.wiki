@@ -61,3 +61,5 @@ Here is an example conversion configuration file (in JSON)
 
 ==phpSparqlExplorer==
 A simple SPARQL endpoint explorer to navigate URI space and retrieve descriptions of and reference to the URI. It also allow users to check sources of triples. 
+ * This service is in testing status, please report errors/requests at http://code.google.com/p/lod-apps/issues
+ * An instance of this service is available at http://onto.rpi.edu/php-lod/phpSparqlExplorer.php. 
