@@ -233,7 +233,7 @@ class SparqlExplorer
 		  }			
 
 		  $params_desc["service-uri"]=  $params_input[SparqlExplorer::INPUT_URI_SPARQL_ENDPOINT];		
-		  $params_desc["output"]=  "sparql";		
+		  $params_desc["output"]=  "sparqljson";		
 		  $params_input[SparqlExplorer::WORK_URI_DATA]= WebUtil::build_restful_url( $params_input[SparqlExplorer::INPUT_URI_SPARQL_PROXY], $params_desc) ;
 
 		  if (!empty($params_input[SparqlExplorer::INPUT_DEBUG])){
@@ -311,6 +311,7 @@ class SparqlExplorer
 
 			switch ($triple->o->type){
 			case "uri":
+			case "bnode":
 				$ret .=SparqlExplorer::create_link ($triple->o->value, null,  $params_input ); 
 				break;
 			case "literal":
@@ -421,7 +422,7 @@ class SparqlExplorer
 		  }			
 
 		  $params_desc["service-uri"]=  $params_input[SparqlExplorer::INPUT_URI_SPARQL_ENDPOINT];		
-		  $params_desc["output"]=  "sparql";		
+		  $params_desc["output"]=  "sparqljson";		
 		  $params_input[SparqlExplorer::WORK_URI_DATA]= WebUtil::build_restful_url( $params_input[SparqlExplorer::INPUT_URI_SPARQL_PROXY], $params_desc) ;
 
 		  if (!empty($params_input[SparqlExplorer::INPUT_DEBUG])){
