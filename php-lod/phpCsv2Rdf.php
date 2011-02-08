@@ -49,6 +49,9 @@ software stack
 
 
 2. Change Log
+2011-02-08, version 0.4 (Li) 
+* add cell-based conversion, now handle any csv files
+
 2011-01-25, version 0.3 (Li) 
 * add functions to detect invalid csv input
 * add fucntions to parse input data smartly (now support csv, tsv, and tab-deliminated document)(also allow extra fields in header)
@@ -99,7 +102,7 @@ class Csv2Rdf
 	////////////////////////////////
 	
 	const ME_NAME = "phpCsv2Rdf";
-	const ME_VERSION = "2011-01-25";
+	const ME_VERSION = "2011-02-08";
 	const ME_AUTHOR = "Li Ding";
 	const ME_CREATED = "2010-05-16";
 	
@@ -138,10 +141,11 @@ class Csv2Rdf
 
 
 	const SMART_NONE ="0";
-	const SMART_EXTRA_HEADER_CELL = "1";
-	const SMART_NO_HEADER = "2";
-	const SMART_DELIM ="3";
-	const SMART_CELL ="4";
+	const SMART_TABLE = "1";
+	const SMART_EXTRA_HEADER_CELL = "2";
+	const SMART_NO_HEADER = "3";
+	const SMART_DELIM ="4";
+	const SMART_CELL ="5";
 
 	const DELIM_COMMA =",";
 	const DELIM_BAR ="|";
@@ -177,7 +181,7 @@ class Csv2Rdf
 		$params_input[Csv2Rdf::INPUT_NO_HEADER] = WebUtil::get_param(Csv2Rdf::INPUT_NO_HEADER, false);
 		$params_input[Csv2Rdf::INPUT_ROW_BEGIN] = intval(WebUtil::get_param(Csv2Rdf::INPUT_ROW_BEGIN, 1));
 		$params_input[Csv2Rdf::INPUT_ROW_TOTAL] = intval(WebUtil::get_param(Csv2Rdf::INPUT_ROW_TOTAL, -1));
-		$params_input[Csv2Rdf::INPUT_SMART_PARSE] = WebUtil::get_param(Csv2Rdf::INPUT_SMART_PARSE, SMART_NONE );
+		$params_input[Csv2Rdf::INPUT_SMART_PARSE] = WebUtil::get_param(Csv2Rdf::INPUT_SMART_PARSE, SMART_TABLE );
 		$params_input[Csv2Rdf::INPUT_DELIM] = WebUtil::get_param(Csv2Rdf::INPUT_DELIM );
 		
 		if (empty($params_input[Csv2Rdf::INPUT_URL])){
@@ -259,8 +263,125 @@ class Csv2Rdf
 			print_r(error_get_last());
 			return;
 		}
+		
+		if (strcmp($params_input[Csv2Rdf::INPUT_SMART_PARSE], Csv2Rdf::SMART_NONE)==0){
+			$this->convertCell($params_input, $handle,$map_ns_prefix,  $messages );
+		}else{
+			$this->convertTable($params_input, $handle,$map_ns_prefix,  $messages );
+		}
+	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	public function convertCell($params_input, $handle, $map_ns_prefix,  $messages){		
+		// generate RDF
+		$rdf = new RdfStream();
+		$rdf->begin($map_ns_prefix,  $params_input[Csv2Rdf::INPUT_OUTPUT], $params_input[Csv2Rdf::INPUT_URL_XMLBASE]);
+
+		$id_row = 0;
+		$id_cell = 1;
+		$id_col_max =0;
+		
+		while ( !Csv2Rdf::isEmptyRow($values=$this->parse_file_row($handle, $params_input, false)) ) {
+			$id_row ++;
+			$res_row = new RdfNode( $params_input[Csv2Rdf::INPUT_NS_RESOURCE] . sprintf("row_%05d",$id_row) );
+			$predicate = new RdfNode( RdfStream::NS_DGTWC."id_row" ) ;
+			$object = new RdfNode($id_row, RdfNode::RDF_INTEGER ) ;
+			$rdf->add_triple($res_row, $predicate, $object);			
+
+
+			//process column
+			for($id_col=1; $id_col<=sizeof($values); $id_col++){
+				$res_col = new RdfNode( $params_input[Csv2Rdf::INPUT_NS_RESOURCE] . sprintf("col_%05d",$id_col) );
+				
+				if ($id_col>$id_col_max){
+					$id_col_max = $id_col;
+					
+					$predicate = new RdfNode( RdfStream::NS_DGTWC."id_col" ) ;
+					$object = new RdfNode($id_col, RdfNode::RDF_INTEGER ) ;
+					$rdf->add_triple($res_col, $predicate, $object);								
+				}	
 
 		
+			}	
+
+						
+			//process cell
+			for($id_col=1; $id_col<=sizeof($values); $id_col++){
+				$res_col = new RdfNode( $params_input[Csv2Rdf::INPUT_NS_RESOURCE] . sprintf("col_%05d",$id_col) );
+				$res_cell = new RdfNode( $params_input[Csv2Rdf::INPUT_NS_RESOURCE] . sprintf("cell_row_%05d_col_%05d",$id_row,$id_col) );		
+								
+				$predicate = new RdfNode( RdfStream::NS_RDF."type" ) ;
+				$object = new RdfNode( RdfStream::NS_DGTWC."Entry" ) ;
+				$rdf->add_triple($res_cell, $predicate, $object);			
+
+				$predicate = new RdfNode( RdfStream::NS_DGTWC."row" ) ;
+				$rdf->add_triple($res_cell, $predicate, $res_row);			
+				
+				$predicate = new RdfNode( RdfStream::NS_DGTWC."col" ) ;
+				$rdf->add_triple($res_cell, $predicate, $res_col);			
+
+				$predicate = new RdfNode( RdfStream::NS_DGTWC."value" ) ;
+				$object = new RdfNode( $values[$id_col], RdfNode::RDF_STRING );
+				$rdf->add_triple($res_cell, $predicate, $object);			
+				$id_cell++;
+			}
+
+			// break if max number of rows has been converted
+			if ( (-1 != $params_input[Csv2Rdf::INPUT_ROW_TOTAL]) && ($params_input[Csv2Rdf::INPUT_ROW_TOTAL] <= $id_row) ){
+				break; //terminate conversion
+			}
+
+		}
+		fclose($handle);
+		
+		
+		//add more metadata
+		$subject = new RdfNode( $params_input[Csv2Rdf::INPUT_URL_XMLBASE] ) ;
+		$predicate = new RdfNode( RdfStream::NS_RDF."type" ) ;
+		$object = new RdfNode( RdfStream::NS_DGTWC."Dataset" ) ;
+		$rdf->add_triple($subject, $predicate, $object) ;
+
+		$predicate = new RdfNode( RdfStream::NS_DCTERMS."source" ) ;
+		$object = new RdfNode( $params_input[Csv2Rdf::INPUT_URL] ) ;
+		$rdf->add_triple($subject, $predicate, $object) ;
+
+		// get last modified date time
+		$predicate = new RdfNode( RdfStream::NS_DCTERMS."modified" ) ;
+		$remote = get_headers($url,1);
+		if (!empty($remote["Last-Modified"])){
+			$object = new RdfNode( $remote["Last-Modified"] , RdfNode::RDF_STRING ) ; 
+			$rdf->add_triple($subject, $predicate, $object) ;
+		}
+
+		$predicate = new RdfNode( RdfStream::NS_RDFS."comment" ) ;
+		$object = new RdfNode( "This RDF dataset is converted from csv using phpCsv2Rdf (http://code.google.com/p/lod-apps/wiki/phpCsv2Rdf).",  RdfNode::RDF_STRING ) ;
+		$rdf->add_triple($subject, $predicate, $object) ;
+
+		foreach($messages as $msg){
+			$predicate = new RdfNode( RdfStream::NS_RDFS."comment" ) ;
+			$object = new RdfNode( $msg,  RdfNode::RDF_STRING ) ;
+			$rdf->add_triple($subject, $predicate, $object) ;
+		}
+
+		// this must be the last triple asserted
+		$predicate = new RdfNode( RdfStream::NS_DGTWC."number_of_triples" ) ;
+		$object = new RdfNode( $rdf->number_of_triples +1, RdfNode::RDF_INTEGER ) ;
+		$rdf->add_triple($subject, $predicate, $object) ;
+		
+		//footer
+		$rdf->end();
+	}
+	
+	public function convertTable($params_input, $handle,$map_ns_prefix,  $messages){		
 		//skip csv rows
 		for ($i=0; $i <$params_input[Csv2Rdf::INPUT_ROW_BEGIN]; $i ++){
 			$values =$this->parse_file_row($handle, $params_input, false);
@@ -289,7 +410,7 @@ class Csv2Rdf
 
 
 		if ($bNoHeader){
-			for($i=0; $i<sizeof($values); $i++){
+			for($i=1; $i<=sizeof($values); $i++){
 				$props[] = sprintf("col_%03d",$i);
 			}
 
@@ -325,7 +446,7 @@ class Csv2Rdf
 		}
 
 		// validate
-		if (FALSE===$values || Csv2Rdf::isEmptyRow($values)){
+		if ( Csv2Rdf::isEmptyRow($values)){
 			$messages[] = "[NOTE CSV NO DATA ROW] cannot find data row in this file";
 		}
 
@@ -346,7 +467,7 @@ class Csv2Rdf
 
 		// content
 		$row_count =0;
-		while ( $values !== FALSE && !Csv2Rdf::isEmptyRow($values) ) {
+		while ( !Csv2Rdf::isEmptyRow($values) ) {
 
 			$this->add_row_pair($rdf, $params_input, $props, $values);
 			$row_count ++;
@@ -605,6 +726,9 @@ class Csv2Rdf
 	}
 
 	private static function isEmptyRow($row){
+		if (FALSE===$row)
+			return true;
+			
 		if (sizeof($row)>1){
 			return false;
 		}
@@ -788,11 +912,12 @@ Show me a sample URI of an instance (mapped from a CSV row): <input name="<?php 
 
 Run smart parse? 
 	   <SELECT name="<?php echo Csv2Rdf::INPUT_SMART_PARSE; ?>">
-		 <OPTION VALUE="<?php echo Csv2Rdf::SMART_NONE; ?>" SELECTED> default, no smart</OPTION>
-		 <OPTION VALUE="<?php echo Csv2Rdf::SMART_EXTRA_HEADER_CELL; ?>" >remove extra header cells</OPTION>
-		 <OPTION VALUE="<?php echo Csv2Rdf::SMART_NO_HEADER; ?>" >above, plus guessing if the table has no header row</OPTION>
-		 <OPTION VALUE="<?php echo Csv2Rdf::SMART_DELIM; ?>" >above, plus guessing delimiter of cells</OPTION>
-		 <OPTION VALUE="<?php echo Csv2Rdf::SMART_CELL; ?>" >above, plus guessing data type of cell</OPTION>
+		 <OPTION VALUE="<?php echo Csv2Rdf::SMART_NONE; ?>"> basic cell-based conversion </OPTION>
+		 <OPTION VALUE="<?php echo Csv2Rdf::SMART_TABLE; ?>" SELECTED> basic table-based conversion (default)</OPTION>
+		 <OPTION VALUE="<?php echo Csv2Rdf::SMART_EXTRA_HEADER_CELL; ?>" >smart table-based conversion: remove extra header cells</OPTION>
+		 <OPTION VALUE="<?php echo Csv2Rdf::SMART_NO_HEADER; ?>" >smart table-based conversion: above, plus guessing if the table has no header row</OPTION>
+		 <OPTION VALUE="<?php echo Csv2Rdf::SMART_DELIM; ?>" >smart table-based conversion: above, plus guessing delimiter of cells</OPTION>
+		 <OPTION VALUE="<?php echo Csv2Rdf::SMART_CELL; ?>" >smart table-based conversion: above, plus guessing data type of cell</OPTION>
 	   </SELECT> <br/>
 <br/>
 
