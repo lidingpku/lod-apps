@@ -1,4 +1,4 @@
-#summary The homepage of php-lod software package, offering phpCsv2Rdf service
+#summary The homepage of php-lod software package, offering RESTful web services including: [#phpCsv2Rdf],[#phpJson2Rdf], and [#phpSparqlExplorer]
 
 = Introduction =
 This page describes a set of tools that provide online services for linking open data.
