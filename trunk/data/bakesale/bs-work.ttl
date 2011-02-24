@@ -1,0 +1,24 @@
+@prefix bs-work: <bs-work#> .
+@prefix bs-location: <bs-location#> .
+@prefix bs-student: <bs-student#> .
+@prefix p: <bs-ontology#> .
+@prefix c: <bs-ontology#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix geo: <http://www.w3.org/2003/01/geo/wgs84_pos#> .
+
+bs-work:Bob rdf:type c:Person .
+bs-work:Bob p:home_city bs-location:Buffalo_NY .
+bs-work:Bob p:supervisor bs-work:Cyndi .
+
+bs-work:Cyndi rdf:type c:Manager .
+
+bs-work:David rdf:type c:Manager .
+bs-work:David p:supervisor bs-work:George .
+bs-work:David p:home_city bs-location:Austin_TX .
+bs-work:David p:child bs-student:John .
+
+bs-work:Frank rdf:type c:Person .
+bs-work:Frank p:supervisor bs-work:Cyndi .
+bs-work:Frank p:colleague bs-work:David.
+
+bs-work:George rdf:type c:Manager .
