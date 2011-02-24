@@ -1,5 +1,6 @@
 @prefix p: <http://lod-apps.googlecode.com/svn/trunk/data/bakesale/bs-ontology#> .
 @prefix c: <http://lod-apps.googlecode.com/svn/trunk/data/bakesale/bs-ontology#> .
+@prefix i: <http://lod-apps.googlecode.com/svn/trunk/data/bakesale/bs-ontology#> .
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix geo: <http://www.w3.org/2003/01/geo/wgs84_pos#> .
 @prefix owl: <http://www.w3.org/2002/07/owl#> .
@@ -31,6 +32,21 @@ c:Undergraduate_Student rdfs:subClassOf c:Student.
 
 c:PhD_Student rdf:type owl:Class.
 c:PhD_Student rdfs:subClassOf c:Graduate_Student.
+
+c:Cookie rdf:type owl:Class.
+c:Cookie rdfs:subClassOf c:Thing.
+
+c:ChocolateCookie rdf:type owl:Class.
+c:ChocolateCookie rdfs:subClassOf c:Cookie.
+c:ChocolateCookie rdfs:subClassOf [
+	a owl:Restriction; 
+	owl:onProperty p:ingredient; 
+	owl:someValueFrom i:chocolatechip . ] .
+
+i:chocolatechip rdf:type  c:Thing .
+
+c:SugarCookie rdf:type owl:Class.
+c:SugarCookie rdfs:subClassOf c:Cookie.
 
 p:social_relation rdf:type owl:ObjectProperty . 
 
