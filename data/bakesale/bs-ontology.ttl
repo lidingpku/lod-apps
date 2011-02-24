@@ -21,6 +21,9 @@ c:Location rdfs:subClassOf c:Thing.
 c:Bake_Sale_Event rdf:type owl:Class.
 c:Bake_Sale_Event rdfs:subClassOf c:Event.
 
+c:Manager rdf:type owl:Class.
+c:Manager rdfs:subClassOf c:Person.
+
 c:Student rdf:type owl:Class.
 c:Student rdfs:subClassOf c:Person.
 
@@ -32,6 +35,7 @@ c:Undergraduate_Student rdfs:subClassOf c:Student.
 
 c:PhD_Student rdf:type owl:Class.
 c:PhD_Student rdfs:subClassOf c:Graduate_Student.
+
 
 c:Cookie rdf:type owl:Class.
 c:Cookie rdfs:subClassOf c:Thing.
