@@ -36,17 +36,17 @@ c:PhD_Student rdfs:subClassOf c:Graduate_Student.
 c:Cookie rdf:type owl:Class.
 c:Cookie rdfs:subClassOf c:Thing.
 
-c:ChocolateCookie rdf:type owl:Class.
-c:ChocolateCookie rdfs:subClassOf c:Cookie.
-c:ChocolateCookie rdfs:subClassOf [
+c:Chocolate_Cookie rdf:type owl:Class.
+c:Chocolate_Cookie rdfs:subClassOf c:Cookie.
+c:Chocolate_Cookie rdfs:subClassOf [
 	a owl:Restriction; 
 	owl:onProperty p:ingredient; 
 	owl:someValueFrom i:chocolatechip . ] .
 
 i:chocolatechip rdf:type  c:Thing .
 
-c:SugarCookie rdf:type owl:Class.
-c:SugarCookie rdfs:subClassOf c:Cookie.
+c:Sugar_Cookie rdf:type owl:Class.
+c:Sugar_Cookie rdfs:subClassOf c:Cookie.
 
 p:social_relation rdf:type owl:ObjectProperty . 
 
