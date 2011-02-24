@@ -1,0 +1,34 @@
+@prefix bs-work: <bs-work#> .
+@prefix bs-location: <bs-location#> .
+@prefix bs-student: <bs-student#> .
+@prefix bs-event: <bs-event#> .
+@prefix p: <bs-ontology#> .
+@prefix c: <bs-ontology#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix geo: <http://www.w3.org/2003/01/geo/wgs84_pos#> .
+
+
+bs-event:BS_1 rdf:type c:Bake_Sale_Event .
+bs-event:BS_1 p:location bs-location:Buffalo_NY .
+bs-event:BS_1 p:seller bs-student:Alice.
+bs-event:BS_1 p:product bs-event:cookie_X .
+
+bs-event:BS_2 rdf:type c:Bake_Sale_Event .
+bs-event:BS_2 p:location bs-location:Albany_NY .
+bs-event:BS_2 p:seller bs-student:Alice.
+bs-event:BS_2 p:product bs-event:cookie_Y .
+
+bs-event:BS_3 rdf:type c:Bake_Sale_Event .
+bs-event:BS_3 p:location bs-location:Austin_TX .
+bs-event:BS_3 p:seller bs-student:Alice.
+bs-event:BS_3 p:product bs-event:cookie_Z .
+
+bs-event:cookie_X  rdf:type  c:Thing .
+bs-event:cookie_X  p:ingredient  bs-event:chocolate .
+
+bs-event:cookie_Y  rdf:type  c:Thing .
+
+bs-event:cookie_Z  rdf:type  c:Thing .
+bs-event:cookie_Z  p:ingredient  bs-event:chocolate .
+
+bs-event:chocolate rdf:type  c:Thing .
