@@ -1,8 +1,8 @@
-@prefix bs-work: <bs-work#> .
-@prefix bs-location: <bs-location#> .
-@prefix bs-student: <bs-student#> .
-@prefix p: <bs-ontology#> .
-@prefix c: <bs-ontology#> .
+@prefix bs-work: <http://lod-apps.googlecode.com/svn/trunk/data/bakesale/bs-work#> .
+@prefix bs-location: <http://lod-apps.googlecode.com/svn/trunk/data/bakesale/bs-location#> .
+@prefix bs-student: <http://lod-apps.googlecode.com/svn/trunk/data/bakesale/bs-student#> .
+@prefix p: <http://lod-apps.googlecode.com/svn/trunk/data/bakesale/bs-ontology#> .
+@prefix c: <http://lod-apps.googlecode.com/svn/trunk/data/bakesale/bs-ontology#> .
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix geo: <http://www.w3.org/2003/01/geo/wgs84_pos#> .
 
