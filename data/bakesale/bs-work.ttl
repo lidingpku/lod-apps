@@ -23,7 +23,7 @@ bs-work:David p:supervisor bs-work:George .
 bs-work:David p:home_city bs-location:Austin_TX .
 bs-work:David p:child bs-work:John.
 
-bw-work:John owl:sameAs bs-student:John .
+bs-work:John owl:sameAs bs-student:John .
 
 
 bs-work:George rdf:type c:Manager .
