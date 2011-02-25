@@ -70,7 +70,7 @@ p:child rdfs:subPropertyOf p:relative .
 p:child owl:inverseOf p:parent . 
 
 p:supervisor rdf:type owl:ObjectProperty . 
-p:supervisor rdfs:subPropertyOf p:employment_relation . 
+p:supervisor rdfs:subPropertyOf p:colleague . 
 
 p:colleague rdf:type owl:SymmetricProperty . 
 p:colleague rdfs:subPropertyOf p:employment_relation . 
@@ -78,7 +78,9 @@ p:colleague rdfs:subPropertyOf p:employment_relation .
 p:ingredient rdf:type owl:ObjectProperty . 
 p:product rdf:type owl:ObjectProperty . 
 p:seller rdf:type owl:ObjectProperty . 
+
 p:home_city rdf:type owl:ObjectProperty . 
+p:home_city rdfs:subPropertyOf p:location . 
 
 p:location rdf:type owl:TransitiveProperty . 
 
