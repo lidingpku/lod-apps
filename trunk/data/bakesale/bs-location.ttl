@@ -20,8 +20,8 @@ bs-location:Albany_NY p:location bs-location:New_York_State .
 bs-location:Albany_NY rdfs:label "Albany, NY" .
 
 bs-location:Austin_TX  rdf:type c:Location .
-bs-location:Austin_TX  geo:lat "45" .
-bs-location:Austin_TX  geo:long "45" .
+bs-location:Austin_TX  geo:lat 30.27 .
+bs-location:Austin_TX  geo:long -97.74 .
 bs-location:Austin_TX  p:location bs-location:Texas .
 bs-location:Austin_TX rdfs:label "Austin, TX" .
 
