@@ -17,6 +17,8 @@ c:Person rdfs:subClassOf c:Thing.
 c:Location rdf:type owl:Class.
 c:Location rdfs:subClassOf c:Thing.
 
+c:State rdf:type owl:Class.
+c:State rdfs:subClassOf c:Location.
 
 c:Bake_Sale_Event rdf:type owl:Class.
 c:Bake_Sale_Event rdfs:subClassOf c:Event.
@@ -79,3 +81,4 @@ p:seller rdf:type owl:ObjectProperty .
 p:home_city rdf:type owl:ObjectProperty . 
 
 p:location rdf:type owl:TransitiveProperty . 
+
