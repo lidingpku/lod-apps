@@ -9,13 +9,13 @@
 
 bs-location:Buffalo_NY  rdf:type c:Location .
 bs-location:Buffalo_NY  geo:lat 42.93 .
-bs-location:Buffalo_NY  geo:long 78.73 .
+bs-location:Buffalo_NY  geo:long -78.73 .
 bs-location:Buffalo_NY p:location bs-location:New_York_State .
 bs-location:Buffalo_NY rdfs:label "Buffalo, NY" .
 
 bs-location:Albany_NY  rdf:type c:Location .
 bs-location:Albany_NY  geo:lat 42.75 .
-bs-location:Albany_NY  geo:long 73.80 .
+bs-location:Albany_NY  geo:long -73.80 .
 bs-location:Albany_NY p:location bs-location:New_York_State .
 bs-location:Albany_NY rdfs:label "Albany, NY" .
 
