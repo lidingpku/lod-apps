@@ -22,7 +22,7 @@ bs-event:BS_2 p:product bs-event:cookie_y .
 
 bs-event:BS_3 rdf:type c:Bake_Sale_Event .
 bs-event:BS_3 p:location bs-location:Austin_TX .
-bs-event:BS_3 p:seller bs-student:Alice.
+bs-event:BS_3 p:seller bs-student:John.
 bs-event:BS_3 p:product bs-event:cookie_z .
 
 bs-event:cookie_x  rdf:type  c:Chocolate_Cookie .
