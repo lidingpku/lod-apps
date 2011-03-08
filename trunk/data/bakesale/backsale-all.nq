@@ -27,7 +27,6 @@
 
 
 
-http://lod-apps.googlecode.com/svn/trunk/data/bakesale/bs-work.ttl
 <http://lod-apps.googlecode.com/svn/trunk/data/bakesale/bs-work.ttl#Bob> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://lod-apps.googlecode.com/svn/trunk/data/bakesale/bs-ontology.ttl#Person> <http://lod-apps.googlecode.com/svn/trunk/data/bakesale/bs-work.ttl> .
 <http://lod-apps.googlecode.com/svn/trunk/data/bakesale/bs-work.ttl#Bob> <http://lod-apps.googlecode.com/svn/trunk/data/bakesale/bs-ontology.ttl#home_city> <http://lod-apps.googlecode.com/svn/trunk/data/bakesale/bs-location.ttl#Buffalo_NY> <http://lod-apps.googlecode.com/svn/trunk/data/bakesale/bs-work.ttl> .
 <http://lod-apps.googlecode.com/svn/trunk/data/bakesale/bs-work.ttl#Bob> <http://lod-apps.googlecode.com/svn/trunk/data/bakesale/bs-ontology.ttl#supervisor> <http://lod-apps.googlecode.com/svn/trunk/data/bakesale/bs-work.ttl#Cyndi> <http://lod-apps.googlecode.com/svn/trunk/data/bakesale/bs-work.ttl> .
