@@ -28,6 +28,14 @@ Convert online JSON data into RDF, N-Triples or N-Quads.
  * An instance of this service is available at http://onto.rpi.edu/php-lod/phpJson2Rdf.php. 
  * A demo of this service is available at http://onto.rpi.edu/php-lod/demo/face_lod.html
 
+Here is the basic idea of conversion:
+
+<img src="http://lod-apps.googlecode.com/svn/trunk/doc/lod-apps-design-workflow-json2rdf.png" width=500>
+
+Here is an example illustrating how conversion works:
+
+<img src="http://lod-apps.googlecode.com/svn/trunk/doc/lod-apps-design-workflow-json2rdf-example.png" width=500>
+
 Here is an example conversion configuration file (in JSON)
 <pre>
 {
