@@ -44,10 +44,12 @@ c:Cookie rdfs:subClassOf c:Thing.
 
 c:Chocolate_Cookie rdf:type owl:Class.
 c:Chocolate_Cookie rdfs:subClassOf c:Cookie.
-c:Chocolate_Cookie rdfs:subClassOf [
+c:Chocolate_Cookie rdfs:subClassOf c:restriction1 .
+
+c:restriction1
 	a owl:Restriction; 
 	owl:onProperty p:ingredient; 
-	owl:hasValue i:chocolatechip ] .
+	owl:hasValue i:chocolatechip  .
 
 i:chocolatechip rdf:type  c:Thing .
 
